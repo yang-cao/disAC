@@ -47,18 +47,21 @@
 \date{}
 
 \begin{abstract}
-  This paper studies \revise{schema} selection for key-value (KV) stores
-  that take a key and fetch a block of values \revise{as a whole}, rather
-  than \revise{fetching a single tuple at a time}.
+  This paper studies schema selection for key-value (KV) stores
+  \warn{under the new block as a value (\baav) model that
+  take} a key and fetch a block of values as a whole, rather
+  than fetching a single tuple at a time.
   We consider parametric \SQL queries over KV
   stores, as commonly found in e-commerce. For such queries,
-  we identify four criteria for selecting a practical schema,
-  to avoid blind scans, speed up data \revise{fetching}, 
-  minimize space overhead and reduce %incremental
-  update maintenance cost.
+  we identify \warn{novel criteria, namely scan-free evaluability and
+  degree minimization for selecting \baav schemas,
+  to avoid scans and speed up data fetching.}
+  %and minimize space overhead and reduce %incremental
+  %update maintenance cost.
   We formalize the schema selection problem under these criteria,
   and show its \NP-completeness. Despite the intractability, 
-  we develop practical algorithms by means of integer linear programming,
+  we develop practical algorithms by means of integer linear
+  programming that can reason about \baav schemas and queries,
   to select a schema that guarantees
   certain optimality under practical conditions.
   Using standard %real-life and

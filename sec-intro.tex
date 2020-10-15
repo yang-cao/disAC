@@ -70,7 +70,7 @@ number of \get invocations over relations in \kv stores.
 \end{example}
 
 \vspace{0.6ex}
-\warn{To remedy the scan overhead for analytical \SQL processing over
+\warn{To alleviate the scan overhead for analytical \SQL processing over
 \kv stores, the {\em block-as-a-value} (\baav) model has recently been
 proposed for representing relations in \kv-stores~\cite{VLDB19}}. The idea is to organize
 relations in key-block pairs $(k, B)$ so that a set $B$ of values
@@ -79,7 +79,7 @@ attributes for $k$, not necessarily tuple id or primary keys.
 Given such a key $k$, it fetches its block $B$ at once.
 As shown in~\cite{VLDB19}, \baav helps us avoid relation scans;
 under the tuple-as-a-value model, scan is implemented via
-a sequence of %an excessive number
+a sequence %of an excessive number
 of $\get()$ operations without known keys,
 and often fetches excessive irrelevant data. By fetching a block
 of values at a time, \baav reduce these costly operations.
@@ -232,6 +232,9 @@ the optimal normalized \baav schema for \tpch and \tpcds
 queries within 0.42 and 0.27 seconds, respectively.
 
 
+\vspace{0.6ex}
+\warn{All formal details and proofs can be found in the full
+version~\cite{full}.}
 
 \stitle{Related work}. The related work is organized as follows.
 
@@ -311,22 +314,21 @@ In contrast, index selection typically relies on greedy
 heuristics instead.  While \cite{PapadomanolakisA07} also uses
 ILP to select pre-defined indices, it essentially treats the
 task as a minimum set cover (\msc) problem and adopt ILP
-formulation of \msc directly. As will be shown in
-Section~\ref{sec-rank}, reasoning about scan-free evaluability
-to design \baav schemas requires machinery much more than that
-of \msc.
-
+formulation of \msc\ directly. As will be shown in
+Section~\ref{sec-rank}, designing \baav schemas
+involves reasoning about scan-free evaluability, which
+requires machinery beyond that of \msc.
 
 \vspace{0.6ex}
 Similarly, related is also the work of materialized view
 selection (see \cite{DBLP:journals/sigmod/MamiB12} for a
 survey), which is to pick a set of queries so that we can
-materialize their answers and reuse them for future queries to
-save computation as much as possible. Similar to index selection
-above, view selection is often carried out by greedy heuristics
-with additional pruning strategies, which cannot capture the
-complications of reasoning with \baav schemas for scan-free
-evaluation.}
+materialize their answers and reuse them for future queries
+as much as possible. For the same reasons as
+index selection above, view selection is often carried out by
+greedy heuristics with additional pruning strategies, which
+cannot capture the complications of reasoning with \baav schemas
+for scan-free evaluation.}
 
 
 

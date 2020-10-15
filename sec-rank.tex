@@ -11,8 +11,8 @@ prove its intractability.
 
 \warn{\stitle{Scan-free evaluability}.
 One naturally wants to find \bdss that can make as many queries
-scan-free as possible to benefit from scan-free evaluation of
-\baav databases.  However, this alone does not make good \bdss.
+scan-free as possible to benefit from scan-free evaluation
+feature of \baav databases.  However, this alone does not make good \bdss.
 For instance, recall query $Q_{1}$ and \bss $\kb{\at{T}}_{1}$
 and $\kb{\at{T}}_{1}'$ from Example~\ref{exa-baav}; $Q_{1}$ is
 scan-free over both $\kb{\at{T}}_{1}$ and $\kb{\at{T}}_{1}'$
@@ -32,36 +32,96 @@ below to further measure the quality of \bdss,
 to distinguish good \bdss from bad ones although over both
 queries can be scan-free.}
 
+
 \warn{\stitle{Degree}.
 The degree of a \bs $\kb{R}\bschema{X}{Y}$, denoted by
 $\deg(\kb{R})$, is the size $|Y|$ of $Y$, \ie the number of
-attributes in $Y$. Intuitively, we favor \bss with smaller
-degrees since \get operations over them tend to fetch smaller
-blocks of values. For example, the scan-free evaluation of
-$Q_{1}$ over $\kb{\at{T}}_{1}$ fetches fewer \at{transaction}
-values than over $\kb{\at{T}}'_{1}$.}
+attributes in $Y$. The degree $\deg(\kb{\R})$ of a \bds
+$\kb{\R}$ is as the sum of the degrees of all \bss in $\kb{\R}$.}
 
-\warn{The degree of a \bds $\kb{\R}$, denoted by $\deg(\kb{\R})$, is
-then defined as the sum of the degrees of \bss in $\kb{\R}$.}
+\warn{Intuitively, we want to find \bss with smaller degrees
+since \get operations over them fetch fewer attributes and hence
+tend to access smaller blocks of values. For example, the
+scan-free evaluation of $Q_{1}$ over $\kb{\at{T}}_{1}$ fetches
+fewer \at{transaction} values than over $\kb{\at{T}}'_{1}$.}
 
 
+\vspace{1ex}
+\warn{Note that scan-free evaluability and \bs degrees are measures
+unique to the \baav model, and have not been used in the
+conventional database design or index and view selection.
+They have to work together to measure the performance of query
+evaluation over the selected \bdss. This however is not easy as
+shown below.}
 
-\warn{\stitle{Ranking \bds}. We are now ready to give the ranking
-function we will use for \baav schema design.  Given database
-schema $\R$ and a set $\Q$ of parametric queries over $\R$, we
-rank \bds $\kb{\R}$ that are in normal form for $\Q$ via an
-aggregated ranking function: %$f(\Q, \kb{\R})$:
+\warn{\eetitle{Intricacy I}. Indeed, maximizing scan-free evaluability
+of the selected \bds $\kb{\R}$ (\ie maximizing the number of
+queries that can be made scan-free evaluable over $\kb{\R}$)
+tend to minimize the key attributes in the \bss (\ie $X$ in \bs
+$\bschema{X}{Y}$) of $\kb{\R}$.  Since $\kb{\R}$ is in normal
+form for $\Q$, the degrees of $\kb{\R}$ would increase if we
+reduce key attributes.  Indeed, optimizing both criteria is
+already intractable, as shown below.}
+
+\begin{lemma}\label{lem-criteria}
+\warn{Given a self-join free \SPC query $Q$ over database schema $\R$
+and an integer $k$, it is already \NP-hard to decide whether
+there exists a \bds $\kb{\R}$ over which $Q$ is scan-free with $\deg(\kb{\R}) \leq k$.}
+\end{lemma}
+
+\warn{Here an \SPC query is a relational algebra query composed of
+selection, project and Cartesian-product (or join) operators
+only. \SPC queries are the simplest but mostly used sub-class of
+\SQL queries. A self-join free \SPC query is an \SPC query
+without self-joins.}
+\looseness = -1
+
+\begin{proofS} \warn{This is proved by reduction from the minimum set
+  cover (\msc) problem, which is \NP-complete
+  (cf.~\cite{Papa1994}). Each set of the \msc\ instance is
+  encoded by a relation atom of $Q$ and each set cover is encoded
+  by a \bds over which $Q$ is scan-free.}
+\end{proofS}
+
+\warn{\eetitle{Intricacy II}. The other challenge of optimizing \bds
+with scan-free evaluability comes from semantic query rewriting.
+Indeed, via syntactic checking a query $Q$ may not look
+scan-free over a \bds $\kb{\R}$;
+however, one may find a semantically equivalent query $Q'$ which
+is easily verified scan-free over $\kb{\R}$. Indeed, one can
+readily prove that it is already undecidable to decide whether
+an \RA (relational algebra) query is scan-free over a \bds
+$\kb{\R}$. Hence, finding an optimal \bds \wrt scan-free
+evaluability is also undecidable for \RA. Here \RA queries are
+\SQL queries without group-by and aggregation.}
+
+\vspace{0.4ex}
+\warn{To alleviate this, we adopt the effective syntax of scan-free
+\SQL queries of \cite{VLDB19} such that we consider scan-free
+queries that are covered by the syntax, which can be checked in
+\PTIME. The effective syntax requires reasoning about the \bss
+over the queries via chasing, in a way that to some extent is
+similar to the implication analysis of functional dependency
+(see full version \cite{full} for details).}
+
+
+\warn{\stitle{Ranking \bds}. Having presented two unique ranking
+criteria for \bdss and analyzed their intricacy, we are now
+ready to give the ranking function we will use for \bds design.
+Given database schema $\R$ and a set $\Q$ of parametric
+queries over $\R$, we rank \bds $\kb{\R}$ that are in normal
+form for $\Q$ via an aggregated ranking function:
 \[f(\Q, \kb{\R}) = c_{1}*\usf(\Q, \ak \kb{\R}) + c_{2}*\deg(\kb{\R}) + \ak c_{3}*\size(\kb{\R}),\]
 where $c_{1}$, $c_{2}$ and $c_{3}$ are importance coefficients
 of the criteria given by the users and are normalized, \ie
 $\sum_{i=1}^{3}c_{i} = 1$; and
-\bi
-  \item $\usf(\Q, \kb{\R})$ measures the number of parametric
+\be
+  \item ({\em scan-free evaluability}) $\usf(\Q, \kb{\R})$ measures the number of
 queries in $\Q$ that are {\em not} scan-free evaluable over $\kb{\R}$;
-  \item $\deg(\Q, \kb{\R})$ is the total degree of $\kb{\R}$;
+  \item ({\em degree}) $\deg(\Q, \kb{\R})$ is the total degree of $\kb{\R}$;
     and
-  \item  $\size(\kb{\R})$ measures the total size of \bss in $\kb{\R}$.
-\ei
+  \item ({\em size}) $\size(\kb{\R})$ measures the total size of \bss in $\kb{\R}$.
+\ee
 In particular, $\size(\kb{\R})$ is defined as the total number
 of attributes in \bss of $\kb{\R}$, \ie
 $\size(\kb{\R}) = \sum_{\bschema{X}{Y}\in \kb{R}}|XY|$.
@@ -70,33 +130,23 @@ of $\kb{\R}$ at the schema level; the smaller $\size(\kb{\R})$
 is, the smaller the \baav databases of $\kb{\R}$.}
 
 
-\warn{\stitle{Remark}.
-(1) Scan-free evaluability and degrees are measures unique to
-\bds and hence the \baav model, and have not been used in the
-conventional database design or index and view selection
-problems. They have to work together in order to measure the
-performance of scan-free evaluation (and general query
-evaluation as well) over \bdss.  As will be shown shortly, they
-make \baav schema design more intriguing than their conventional
-counterparts.
-
-\sstab (2) We acknowledge that there are many other conventional
-criteria for ranking indices and views can also be applied to
-measure \bdss, such as the database size and incremental
-maintenance cost. However, to focus more on the new challenges
-incited by the \baav model (\ie scan-free evaluability and
-degrees), we only adopted the size of \baav databases in
-$f(\Q, \kb{\R})$, measured by $\size(\kb{\R})$ at the schema
-level. In doing so, we also align with the main targeted
-application scenarios of \baav databases, \ie analytical \SQL
-queries for SQL-over-NoSQL (key-value) systems.
+\warn{\stitle{Remark}. (1) We acknowledge that there are many
+other conventional criteria for ranking indices and views can
+also be applied to measure \bdss, such as the database size and
+incremental maintenance cost. However, to focus more on the new
+challenges incited by the \baav model (\ie scan-free
+evaluability and degrees), we only adopted the size of \baav
+databases in $f(\Q, \kb{\R})$, measured by $\size(\kb{\R})$ at
+the schema level. In doing so, we also align with the main
+targeted application scenarios of \baav databases, \ie
+analytical \SQL queries for SQL-over-NoSQL (key-value) systems.
 This said, in practice one can include more coarse-grained
 criteria in $f(\Q, \kb{\R})$ based on the targeted applications.
 Our algorithms to be presented shortly are generic and robust to
 such extensions.
 
 
-\sstab (3) One can also attach an importance weight $w_{Q}$ to
+\sstab (2) One can also attach an importance weight $w_{Q}$ to
 each parametric query $Q$ in $\Q$, representing \eg its
 frequency of being instantiated in the workload. We remark that
 all the results in the sequel remain unchanged for such weighted
@@ -146,12 +196,12 @@ Hence $f_{0}(\Q,\ak \kb{\R}_{3})\ak =\ak 1.12$,
 
 
 \stitle{The problem of \bds selection}.
-The {\em \baav schema selection problem} is to compute,
-given a workload $\Q$ over $\R$ and an aggregate rank function
-$f$ (\ie $c_{1}$, \ldots, $c_{4}$),
-the optimal \bds $\kb{\R}$ for $\Q$ based on $f$, \ie a \bds
-$\kb{\R}$ for $\Q$ with the minimum $f(\Q, \kb{\R})$ among all \bdss
-that are in the normal form for $\Q$.
+The {\em \baav schema selection problem} is to compute, given a
+workload $\Q$ of parametric queries over $\R$ and an aggregate
+rank function $f$ (\ie $c_{1}$, $c_{2}$ and $c_{3}$), the
+optimal \bds $\kb{\R}$ for $\Q$ based on $f$, \ie a \bds
+$\kb{\R}$ for $\Q$ with the minimum $f(\Q, \kb{\R})$ among all
+\bdss that are in the normal form for $\Q$.
 
 
 \stitle{Complexity}. Its  decision problem is to decide, given $\Q$, $f$ and a
@@ -164,18 +214,18 @@ We next show that the problem is intractable.
 
 \begin{theorem}\label{thm-complexity}
   The \baav schema selection problem
-  is \NP-complete for \warn{\SQL} %\SPC
+  is \NP-complete for \SQL %\SPC
   queries. 
 It remains \NP-hard even $\Q$ consists of self-join free
-\SPC queries only \warn{and $c_{3} = c_{4} = 0$ in
-%the aggregate rank function
-$f$.}
+\SPC queries only and $c_{3} = 0$ in
+the aggregate rank function $f$.
 \end{theorem}
 
 %\warn{Extend it to \SQL instead of \SPC}
 \vspace{-0.4ex}
 
 \begin{proofS}
+\warn{The \NP-hardness follows from Lemma~\ref{lem-criteria}.}
 To verify the upper bound, we first prove a small model
 property: for any \bds $\kb{\R}$, there exists a \bds $\kb{\R}'$
 that consists of no more than $\cd{\Q}$ \bss, each of size
@@ -187,13 +237,13 @@ $\R$ such that $\kb{\R}$ contains at most $\cd{\Q}$ \bss,
 each of size at most $|\R|$;
 it then checks whether $f(\Q, \kb{\R})\leq h$ and returns
 $\kb{\R}$ if so.
-
-The lower bound is verified by
-reduction from the minimum set cover problem, which is
-\NP-complete (cf.~\cite{GaJo79}).
-The reduction uses $\Q$ with a single
-self-join free \SPC query and only measures (1) and (2) in the
-aggregate rank function $f$.
+%
+% The lower bound is verified by
+% reduction from the minimum set cover problem, which is
+% \NP-complete (cf.~\cite{GaJo79}).
+% The reduction uses $\Q$ with a single
+% self-join free \SPC query and only measures (1) and (2) in the
+% aggregate rank function $f$.
 \end{proofS}
 
 
