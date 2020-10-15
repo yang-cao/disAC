@@ -1,0 +1,476 @@
+\vspace{2ex}
+%%%%%%%% Section 5 %%%%%%%%
+\section{Computing Optimal Schema Cover}
+\label{sec-cover}
+
+We next develop an algorithm to construct a universe set
+$\kb{\A}$ of \bss for $\Q$, as part of the input for \revise{algorithm
+\opts above}. %in Section~\ref{sec-select}.
+
+\stitle{Algorithm}. The algorithm, denoted by \usc, takes as input a workload $\Q$
+over \revise{a} database schema $\R$, and returns a set $\kb{\A}$ of \bss
+for $\Q$.
+While there exist up to exponentially many distinct \bss for
+$\Q$, \usc computes $\kb{\A}$ with the following properties:
+\bi
+\item[(a)] for each K-FK join \SPC query $Q\in \Q$, any rank aggregate function $f$,
+  and any \bds $\kb{\R}_{Q}$ that is in the normal form for $Q$,
+  if $\kb{\R}_{Q}$ is optimal under $f$, then
+  $\kb{\R}_{Q}\subseteq \kb{\A}$; and
+\item[(b)] the time for constructing $\kb{\A}$ is polynomial in
+  $|\Q|$ and $|\R|$.
+  %\footnote{We assume that the number joins in each $Q\in \Q$ is bounded by a constant.}
+\ei
+By (b), the size of $\kb{\A}$ is also polynomial in
+$|\Q|$ and $|\R|$.
+
+To do this, \usc constructs $\kb{\A}$ for $\Q$ by
+constructing a universe set $\kb{\A}_{Q}$ of \bss for each \revise{query}
+$Q$ in $\Q$,
+such that under any aggregate rank function $f$, the optimal
+normalized \bds $\kb{R}_{Q}$ for $Q$ \revise{is} %must be
+subsumed by $\kb{\A}_{Q}$.
+It returns the union of $\kb{\A}_{Q}$ for all $Q$ in $\Q$ as
+the universe set $\kb{\A}$ of \bss for $Q$.
+%
+\revise{When $Q$ is a 
+generic \SQL query, we decompose it into its \SPC
+sub-queries, and $\kw{\A}$ is the union of the universe sets of
+  all the sub-queries.}
+Hence, below we assume that $\Q$ consists of \SPC queries.
+
+More specifically, \usc generates $\kb{\A}_{Q}$ for each $Q$ as follows.
+
+\eetitle{Step (1)}. It first generates two \bss for each \revise{query} $Q$:
+$\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}$ and $\kb{R}_{Q}^{2} =
+\bschema{P_{Q}Y_{Q}}{\emptyset}$. \revise{Here} $\{\kb{R}_{Q}^{1}\}$ is
+an optimal \bds for $Q$ when the scan-free evaluability (measure (1))
+and the size (measure (3)) are considered; similarly,
+$\{\kb{R}_{Q}^{2}\}$ is optimal when data access (measure (2)) is
+concerned.
+One can verify that $\kb{R}_{Q}^{1}$ and $\kb{R}_{Q}^{2}$ taken
+together can subsume optimal \bdss for $Q$ under any ranking
+function $f$ with $c_{4} = 0$.
+
+\vspace{0.36ex}
+Here we include $\kb{R}_{Q}^{2}$ only to guarantee property (a)
+\revise{of $\kb{\A}$} claimed, \ie $\kb{\A}_{Q}$ can cover all optimal
+\bdss for $Q$, even when only measure (2) is \revise{concerned} alone. In
+practice, we omit $\kb{R}_{Q}^{2}$ since measure (2) is typically
+used along with other measures, \eg measure (1), to quantify
+query evaluation cost over $\kb{\R}$.
+
+
+\vspace{0.36ex}
+
+\eetitle{Step (2)}. It then decomposes $\kb{R}_{Q}^{1}$ over relations of
+$Q$, yielding \bss that do not span \revise{across} multiple relations. The
+process starts with the relation $R$ \revise{that contains} the maximum
+number of parameters of $Q$ (\ie $P_{Q}$). It generates
+$\kb{R}_{Q} = \bschema{P_{Q}^{R}}{Y_{Q}^{R}}$ from $R$, where
+$P_{Q}^{R}$ consists of attributes in $P_{Q}$ that are also in
+$R$; similarly for $Y_{Q}^{R}$; it marks $R$ as {\em processed}.
+It then identifies the relation $R'$ in $Q$ \revise{such that
+  it} contains the maximum
+number of attributes that are in \bss $\kb{R}_{Q}$ with $R$
+marked processed, and \revise{handles} $R'$ along the same lines. The
+process continues until all relations in $Q$ are marked
+processed. This derives one \bs $\kb{R}_{Q}$ for each $R$ of $Q$
+from $\kb{R}_{Q}^{1}$ generated in step (1).
+
+\vspace{0.36ex}
+
+\eetitle{Step (3)}. \revise{This final step} is to generate cross-relation \bss
+for $Q$. For each set $\Sigma$ consisting of two relations in $Q$
+that can be joined together with K-FK joins, \usc replaces both
+relations with the universal relation $R_{\Sigma}$
+(see~\cite{AbHuVi1995}) of $\Sigma$, and re-does step (2) over
+$R_{\Sigma}$ and those relations that are not in $\Sigma$. It
+generates again one \bs per each relation of $Q$ that is not \revise{yet}
+in $\Sigma$ and one \bs $\kb{R}_{Q}^{\Sigma}$ for $R_{\Sigma}$. Note
+that $\kb{R}_{Q}^{\Sigma}$ may \revise{span across} two relations in $\Sigma$.
+The step \revise{is done} %finishes
+when all sets $\Sigma$ for $Q$ are processed
+and the new \bss are all added to $\kb{\A}_{Q}$. 
+
+
+
+\stitle{Implementing \usc}.
+\revise{Algorithm \usc is outlined as Algorithm~\ref{alg-usc}}.
+\revise{Step (1) is carried out by} lines~\ref{usc-l1}-\ref{usc-l2}.
+\revise{followed by 
+  steps (2) and (3)} (lines~\ref{usc-l3}-\ref{usc-l5}).
+In particular, when $\Sigma$
+contains only a single relation of $Q$, \revise{a single execution
+  of lines~\ref{usc-l4}-\ref{usc-l5} conducts step (2)};
+the other iterations of lines~\ref{usc-l3}-\ref{usc-l5} are for 
+step (3). The key part of each iteration is the decomposition of
+$\kb{R}_{Q}^{1}$ computed in step (1) (line~\ref{usc-l2}) over
+relations of $Q$, yielding ``projected'' \bss of
+$\kb{R}_{Q}^{1}$, in various sizes. This is implemented via
+procedure \decompose, \revise{also shown}
+in Algorithm~\ref{alg-usc} (lines~\ref{usc-l8}-\ref{usc-l15}), which
+largely follows the description of steps (2) and (3) of above.
+It takes the set of all \bss generated in steps (1)-(3) for
+each $Q$ as $\kb{\A}_{Q}$ (lines~\ref{usc-l1}-\ref{usc-l5}) and
+returns the union of $\kb{\A}_{Q}$ for all queries in $\Q$ as the
+final universe set $\kb{\A}$ (lines~\ref{usc-l6}-\ref{usc-l7}).
+
+%\warn{Check the highlighted part}
+
+\begin{example}\label{exa-usc}
+Recall $Q_{1}$ from Example~\ref{exa-baav}.
+Step (1) of \usc generates $\kb{R}_{Q_{1}}^{1} \ak =\ak
+\bschema{(\at{date}, \ak \at{payee})}{(\at{cid}, \ak \at{bid},
+  \ak \at{city})}$ and 
+$\kb{R}_{Q_{1}}^{2} = \bschema{(\at{date}, \ak \at{payee},
+  \at{cid}, \ak \at{bid}, \ak \at{city})}{\emptyset}$. 
+Step (2) of \usc populates $\kb{R}_{Q_{1}}^{1}$ into 
+$\kb{\at{B}}_{1}$, $\kb{\at{T}}_{1}$ and $\kb{\at{C}}_{1}$ of
+$\kb{\R}_{1}$ in Example~\ref{exa-mapping}.
+Step (3) further generates $\kb{\at{TC}}_{2}\bschema{(\at{data},\ak
+  \at{payee})}{(\at{cid},\ak \at{bid})}$ and 
+$\kb{\at{CB}}\bschema{\at{cid}}{(\at{bid},\ak \at{city})}$.
+Finally, \opts returns $\kb{\A}$ consisting of 
+$\kb{\at{B}}_{1}$, $\kb{\at{C}}_{1}$, $\kb{\at{T}}_{1}$,
+$\kb{\at{TC}}_{2}$, $\kb{\at{CB}}$.
+Note that $\kb{\A}$ subsumes the optimal \bds $\kb{\R}_{1}$ and
+$\kb{\R}_{2}$ of Example~\ref{exa-ILP-I}.
+\end{example}
+
+\vspace{-0.7ex}
+
+
+\stitle{Analysis}.
+Step (1) of \usc warrants property (a) of $\kb{\A}$ claimed at
+the beginning of the section. Indeed, for each $Q$, step (1) of
+\usc guarantees that $\kb{\A}_{Q}$ subsumes optimal \bdss under
+any ranking function $f$ with $c_{4} = 0$. The key observation
+here is that $\kb{R}_{Q}^{1}$ constructed in step (1) already forms an
+optimal \bds under both measures (1) and (3).
+After expanding $\kb{\A}_{Q}$ with \bss over individual relations
+in $Q$ generated by step (2), by the definition of measure (4),
+\usc further guarantees that all optimal \bdss for $Q$ are subsumed by
+$\kb{\A}_{Q}$, even all measures are taken into account in $f$.
+The analysis is based on the assumption that a \bds $\kb{\R}$ is
+in the normal form for $Q$ if and only if for each \qcs of $Q$, there
+exists \bs $\kb{R}$ in $\kb{\R}$ that supports $W$ (recall
+Section~\ref{sec-select}); this holds when $\Q$
+consists of K-FK join \SPC queries.
+\looseness = -1
+
+\vspace{0.36ex}
+
+To see that property (b) also holds
+\revise{for $\kb{\A}$, observe} that \usc computes $\kb{\A}$ consisting of
+no more than $2\cdd{\Q} + \frac{(\kappa+1)(\kappa+2)}{2}$
+many \bss in $O(\kappa^{2}\cd{\Q})$-time, where $\kappa$ is the
+maximum number of K-FK joins that a single query in $\Q$
+contains. Indeed, step (1) of \usc generates $2\cdd{\Q}$ \bss in
+$O(\cd{\Q})$-time; steps (2) and (3) generate no more than
+$\frac{(\kappa+1)(\kappa+2)}{2}$ \bss in
+$O(\frac{\cd{\Q}(\kappa+1)(\kappa+2)}{2})$-time, which is bounded
+by $O(\kappa^{2}\cd{\Q})$.
+
+
+\begin{myfloat}[t]
+\vspace{1.2ex}
+\begin{minipage}{0.50\textwidth}
+  \removelatexerror
+%%%%%%%%%%%%%%%%%%%%% Algorithm: USC
+{\scriptsize
+\setlength{\floatsep}{0cm} % set blank space above the figure
+\setlength{\textfloatsep}{-2cm}% set blank space below the figure
+\IncMargin{1em}
+\vspace{-0.7ex}
+\begin{algorithm}[H]
+\setstretch{1.1}
+%\SetAlgoNoLine
+\Indentp{-2ex}
+%\DontPrintSemicolon
+%\SetAlgoLined
+\KwIn{\revise{A database} schema $\R$ and a workload $\Q$ over $\R$.}
+\KwOut{A set $\kb{\A}$ of \bss for $\Q$.}
+\Indentp{1em}
+\BlankLine
+\ForEach{$Q\in \Q$\label{usc-l1}}{$\kb{\A}_{Q} \la
+  \{\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}), \kb{R}^{2}_{Q} =
+  \bschema{P_{Q}Y_{Q}}{\emptyset})\}$\;\label{usc-l2}
+  \ForEach{$\Sigma\subseteq \Sigma_{Q}$ consisting no more than
+    2 relations\label{usc-l3}}{
+    \tcc{$\Sigma_{Q}$: the set of relation atoms appeared in $Q$}
+   % \tcc{relations in $\Sigma$ can be K-FK joined into a universal relation $R_{\Sigma}$}
+    $\kb{\A}' \la \decompose(\Sigma_{Q}\setminus \Sigma \cup
+    \{R_{\Sigma}\}, Q)$\label{usc-l4}\;
+    $\kb{\A}_{Q} \la \kb{\A}_{Q}\cup \kb{\A}'$\label{usc-l5}\;
+  }
+}
+$\kb{\A} \la \bigcup_{Q\in \Q} \kb{\A}_{Q}$\label{usc-l6}\;
+\Return $\kb{\A}$\label{usc-l7}\;
+
+
+\nonl\SetKwFunction{proc}{\pdecompose}
+\nonl\SetKwProg{myproc}{Procedure}{}{}
+\vspace{0.3cm}
+\nonl\SetKwFunction{pdecompose}{\decompose}
+% \setcounter{AlgoLine}{0}
+\nonl \myproc{\pdecompose{$\R_{Q}, Q$}}{
+  $\kb{\A} \la \emptyset$\;\label{usc-l8}
+  \While{$\R_{Q}\neq \emptyset$}{
+    \tcc{$\atset(R)$ (resp. $\atset(\kb{\A})$): the set of
+      attributes in $R$ (resp. $\kb{\A}$)}
+    $R \la \argmax_{R\in \R_{Q}}|\atset(R)\cap (P_{Q}\cup
+    \atset(\kb{\A}))|$\;
+    $X_{R}\la \atset(R)\cap (P_{Q}\cup \atset(\kb{\A}))$\;
+    $Y_{R}\la \atset(R)\cap (Y_{Q}\cup \atset(\kb{\A}))$\;
+    add \bs $\bschema{X_{R}}{Y_{R}}$ to $\kb{\A}$\;
+    remove $R$ from $\R_{Q}$\;
+  }
+  \Return $\kb{\A}$;\label{usc-l15}
+}
+\caption{Algorithm \usc\label{alg-usc}} 
+\end{algorithm}
+\DecMargin{1em}
+}
+%%%%%%%%%%%%%%%%%%%%%
+\end{minipage}
+\vspace{-2.4ex}
+\end{myfloat}
+
+\eetitle{Remark}.
+Note that step (3) of \usc only generates \bss over a single
+relation or \revise{across} two relations connected via K-FK join. While
+this already guarantees property (a) of \usc, we can further
+improve the coverage of the universe set $\kb{\A}$ returned by
+\usc by covering all \revise{\bss across} more than two relations for each
+$Q$. To do this, we only need to lift the size restriction on set
+$\Sigma\subseteq \Sigma_{Q}$ in line~\ref{usc-l3} of \usc, so
+that it iterates over all subsets of $\Sigma_{Q}$. Note that
+this only \revise{increases}  
+the complexity of \usc to
+$O(2^{\kappa}\cd{\Q})$-time; where \revise{$\kappa$} %$2^{\kappa}$
+is typically a
+small constant, \eg on average $2$ %$2^{2}$
+for \tpch and \tpcds queries.
+
+\eat{%EAT
+  \begin{myfloat}[t]
+\vspace{1.2ex}
+\begin{minipage}{0.50\textwidth}
+  \removelatexerror
+%%%%%%%%%%%%%%%%%%%%% Algorithm: USC
+{\scriptsize
+\setlength{\floatsep}{0cm} % set blank space above the figure
+\setlength{\textfloatsep}{-2cm}% set blank space below the figure
+\IncMargin{1em}
+\vspace{-0.7ex}
+\begin{algorithm}[H]
+\setstretch{1.1}
+%\SetAlgoNoLine
+\Indentp{-2ex}
+%\DontPrintSemicolon
+%\SetAlgoLined
+\KwIn{Database schema $\R$ and workload $\Q$ over $\R$.}
+\KwOut{A set $\kb{\A}$ of \bss for $\Q$.}
+\Indentp{1em}
+\BlankLine
+\ForEach{$Q\in \Q$\label{usc-l1}}{$\kb{\A}_{Q} \la
+  \{\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}), \kb{R}^{2}_{Q} =
+  \bschema{P_{Q}Y_{Q}}{\emptyset})\}$\;\label{usc-l2}
+  \ForEach{$\Sigma\subseteq \Sigma_{Q}$ consisting no more than
+    2 relations\label{usc-l3}}{
+    \tcc{$\Sigma_{Q}$: the set of relation atoms appeared in $Q$}
+   % \tcc{relations in $\Sigma$ can be K-FK joined into a universal relation $R_{\Sigma}$}
+    $\kb{\A}' \la \decompose(\Sigma_{Q}\setminus \Sigma \cup
+    \{R_{\Sigma}\}, Q)$\label{usc-l4}\;
+    $\kb{\A}_{Q} \la \kb{\A}_{Q}\cup \kb{\A}'$\label{usc-l5}\;
+  }
+}
+$\kb{\A} \la \bigcup_{Q\in \Q} \kb{\A}_{Q}$\label{usc-l6}\;
+\Return $\kb{\A}$\label{usc-l7}\;
+
+
+\nonl\SetKwFunction{proc}{\pdecompose}
+\nonl\SetKwProg{myproc}{Procedure}{}{}
+\vspace{0.3cm}
+\nonl\SetKwFunction{pdecompose}{\decompose}
+% \setcounter{AlgoLine}{0}
+\nonl \myproc{\pdecompose{$\R_{Q}$, $Q$}}{
+  $\kb{\A} \la \emptyset$\;\label{usc-l8}
+  \While{$\R_{Q}\neq \emptyset$}{
+    \tcc{$\atset(R)$ (resp. $\atset(\kb{\A})$): the set of
+      attributes in $R$ (resp. $\kb{\A}$)}
+    $R \la \argmax_{R\in \R_{Q}}|\atset(R)\cap (P_{Q}\cup
+    \atset(\kb{\A}))|$\;
+    $X_{R}\la \atset(R)\cap (P_{Q}\cup \atset(\kb{\A}))$\;
+    $Y_{R}\la \atset(R)\cap (Y_{Q}\cup \cup \atset(\kb{\A}))$\;
+    add \bs $\bschema{X_{R}}{Y_{R}}$ to $\kb{\A}$\;
+    remove $R$ from $\R_{Q}$\;
+  }
+  \Return $\kb{\A}$;\label{usc-l15}
+}
+\caption{Algorithm \usc\label{alg-usc}} 
+\end{algorithm}
+\DecMargin{1em}
+}
+%%%%%%%%%%%%%%%%%%%%%
+\end{minipage}
+\vspace{-2.4ex}
+\end{myfloat}
+
+
+
+\section{Computing Optimal Schema Cover}
+\label{sec-cover}
+
+We next develop an algorithm to construct a universe set
+$\kb{\A}$ of \bss for $\Q$, as part of the input for \opts in
+Section~\ref{sec-select}.
+
+\stitle{Algorithm}. The algorithm, denoted by \usc, takes as input a workload $\Q$
+over database schema $\R$, and returns a set $\kb{\A}$ of \bss
+for $\Q$.
+While there exist up to exponentially many distinct \bss for
+$\Q$, \usc computes $\kb{\A}$ with the following properties:
+\bi
+\item[(a)] for each K-FK join \SPC query $Q\in \Q$, any rank aggregate function $f$,
+  and any \bds $\kb{\R}_{Q}$ that is in the normal form for $Q$,
+  if $\kb{\R}_{Q}$ is optimal under $f$, then
+  $\kb{\R}_{Q}\subseteq \kb{\A}$; and
+\item[(b)] the time for constructing $\kb{\A}$ is polynomial in
+  $|\Q|$ and $|\R|$.
+  %\footnote{We assume that the number joins in each $Q\in \Q$ is bounded by a constant.}
+\ei
+By (b), the size of $\kb{\A}$ is also polynomial in
+$|\Q|$ and $|\R|$.
+
+To do this, \usc constructs $\kb{\A}$ for $\Q$ by
+constructing a universe set $\kb{\A}_{Q}$ of \bss for each $Q$ in $\Q$
+such that, under any aggregate rank function $f$, the optimal
+normalized \bds $\kb{R}_{Q}$ for $Q$ must be subsumed by $\kb{\A}_{Q}$.
+It returns the union of $\kb{\A}_{Q}$ for all $Q$ in $\Q$ as
+the universe set $\kb{\A}$ of \bss for $Q$. When $\Q$ contains
+generic \SQL queries, it decomposes them into their \SPC
+sub-queries. Hence, below we assume that $\Q$ consists of \SPC queries.
+
+More specifically, \usc generates $\kb{\A}_{Q}$ for each $Q$ as follows.
+
+\etitle{Step (1)}. It first generates two \bss for each $Q$:
+$\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}$ and $\kb{R}_{Q}^{2} =
+\bschema{P_{Q}Y_{Q}}{\emptyset}$. Indeed, $\{\kb{R}_{Q}^{1}\}$ is
+an optimal \bds for $Q$ when scan-free evaluability (measure (1))
+and size (measure (3)) are considered; similarly,
+$\{\kb{R}_{Q}^{2}\}$ is optimal when data access (measure (2)) is
+concerned.
+One can verify that, $\kb{R}_{Q}^{1}$ and $\kb{R}_{Q}^{2}$ taken
+together can subsume optimal \bdss for $Q$ under any ranking
+function $f$ with $c_{4} = 0$.
+
+Here we include $\kb{R}_{Q}^{2}$ only to guarantee property (a)
+claimed of $\kb{\A}$, \ie $\kb{\A}_{Q}$ can cover all optimal
+\bdss for $Q$, even when only measure (2) is considered alone. In
+practice, we omit $\kb{R}_{Q}^{2}$ as measure (2) is typically
+used along with other measures, \eg measure (1), to quantify
+query evaluation cost over $\kb{\R}$.
+
+
+
+
+\etitle{Step (2)}. It then decomposes $\kb{R}_{Q}^{1}$ over relations of
+$Q$, yielding \bss that do not span multiple relations. The
+process starts with the relation $R$ containing the maximum
+number of parameters of $Q$ (\ie $P_{Q}$). It generates
+$\kb{R}_{Q} = \bschema{P_{Q}^{R}}{Y_{Q}^{R}}$ from $R$, where
+$P_{Q}^{R}$ consists of attributes in $P_{Q}$ that are also in
+$R$; similarly for $Y_{Q}^{R}$; it marks $R$ as processed.
+It then identifies the relation $R'$ in $Q$ that contains the maximum
+number of attributes that are in \bss $\kb{R}_{Q}$ with $R$
+marked processed, and process $R'$ along the same lines. The
+process continues until all relations in $Q$ are marked
+processed. This derives one \bs $\kb{R}_{Q}$ for each $R$ of $Q$
+from $\kb{R}_{Q}^{1}$ generated in step (1).
+
+
+
+\etitle{Step (3)}. Step (3) is to generate cross-relation \bss
+for $Q$. For each set $\Sigma$ consisting of two relations in $Q$
+that can be joined together with K-FK joins, \usc replaces both
+relations with the universal relation $R_{\Sigma}$
+(cf.~\cite{AbHuVi1995}) of $\Sigma$, and re-does step (2) over
+$R_{\Sigma}$ and those relations that are not in $\Sigma$. It
+generates again one \bs per each relation of $Q$ that is not in
+$\Sigma$ and one \bs $\kb{R}_{Q}^{\Sigma}$ for $R_{\Sigma}$. Note
+that $\kb{R}_{Q}^{\Sigma}$ may cross two relations in $\Sigma$.
+The step finishes when all sets $\Sigma$ for $Q$ are processed
+and the new \bss are all added to $\kb{\A}_{Q}$. 
+
+
+
+\stitle{Implementing \usc}.
+We next describe an implementation of algorithm \usc, shown as
+Algorithm~\ref{alg-usc}. More specifically, it implements step
+(1) via lines~\ref{usc-l1}-\ref{usc-l2}.
+It then implements steps (2) and (3) via 
+lines~\ref{usc-l3}-\ref{usc-l5}. In particular, when $\Sigma$
+contains only a single relation of $Q$, this implements step (2);
+the other iterations of lines~\ref{usc-l3}-\ref{usc-l5} implement
+step (3). The key part of each iteration is the decomposition of
+$\kb{R}_{Q}^{1}$ computed in step (1) (line~\ref{usc-l2}) over
+relations of $Q$, yielding ``projected'' \bss of
+$\kb{R}_{Q}^{1}$, in various sizes. This is implemented via
+procedure \decompose also in Algorithm~\ref{alg-usc} (lines~\ref{usc-l8}-\ref{usc-l15}), which
+largely follows the description of steps (2) and (3) of above.
+It takes the set of all \bss generated in steps (1)-(3) for
+each $Q$ as $\kb{\A}_{Q}$ (lines~\ref{usc-l1}-\ref{usc-l5}) and
+returns the union of $\kb{\A}_{Q}$ for all queries in $\Q$ as the
+final universe set $\kb{\A}$ (lines~\ref{usc-l6}-\ref{usc-l7}).
+
+\begin{example}\label{exa-usc}
+\end{example}
+
+
+
+
+\stitle{Analysis}.
+Step (1) of \usc warrants property (a) of $\kb{\A}$ claimed at
+the beginning of the section. Indeed, for each $Q$, step (1) of
+\usc guarantees that $\kb{\A}_{Q}$ subsumes optimal \bdss under
+any ranking function $f$ with $c_{4} = 0$. The key observation
+here is that $\kb{R}_{Q}^{1}$ constructed in step (1) already forms an
+optimal \bds under both measures (1) and (3).
+After expanding $\kb{\A}_{Q}$ with \bss over individual relations
+in $Q$ generated by step (2), by the definition of measure (4),
+\usc further guarantees that all optimal \bdss for $Q$ are subsumed by
+$\kb{\A}_{Q}$, even all measures are taken into account in $f$.
+The analysis is based on the assumption that a \bds $\kb{\R}$ is
+in the normal form for $Q$ if and only if for each \qcs of $Q$, there
+is \bs $\kb{R}$ in $\kb{\R}$ that supports $W$ (recall
+Section~\ref{sec-select}); this holds when $\Q$
+consists of K-FK join \SPC queries.
+\looseness = -1
+
+To see that property (b) also holds
+for $\kb{\A}$. Observe that \usc computes $\kb{\A}$ consisting of
+no more than $2\cdd{\Q} + \frac{(\kappa+1)(\kappa+2)}{2}$
+many \bss in $O(\kappa^{2}\cd{\Q})$-time, where $\kappa$ is the
+maximum number of K-FK joins that a single query in $\Q$
+contains. Indeed, step (1) of \usc generates $2\cdd{\Q}$ \bss in
+$O(\cd{\Q})$-time; steps (2) and (3) generate no more than
+$\frac{(\kappa+1)(\kappa+2)}{2}$ many \bss in
+$O(\frac{\cd{\Q}(\kappa+1)(\kappa+2)}{2})$-time, which is bounded
+by $O(\kappa^{2}\cd{\Q})$.
+
+
+\stitle{Remark}.
+Note that step (3) of \usc only generates \bss over a single
+relation or cross two relations connecting via K-FK join. While
+this already guarantees property (a) of \usc, we can further
+improve the coverage of the universe set $\kb{\A}$ returned by
+\usc by covering all \bss cross more than two relations for each
+$Q$. To do this, we only need to lift the size restriction on set
+$\Sigma\subseteq \Sigma_{Q}$ in line~\ref{usc-l3} of \usc, so
+that it iterates over all subsets of $\Sigma_{Q}$. Note that,
+this only improves the complexity of \usc to
+$O(2^{\kappa}\cd{\Q})$-time; where $2^{\kappa}$ is typically a
+small constant, \eg as small as $2^{3}$ for \tpch and \tpcds
+query workload.}%EAT

@@ -1,0 +1,269 @@
+\vspace{2ex}
+%%%%%%%% Section 3 %%%%%%%%
+\section{Ranking Cache Schemas}
+\label{sec-rank}
+
+
+We next develop criteria for ranking \bdss. We then
+formulate the \bds selection problem  and
+prove its intractability.
+
+
+\warn{\stitle{Scan-free evaluability}.
+One naturally wants to find \bdss that can make as many queries
+scan-free as possible to benefit from scan-free evaluation of
+\baav databases.  However, this alone does not make good \bdss.
+For instance, recall query $Q_{1}$ and \bss $\kb{\at{T}}_{1}$
+and $\kb{\at{T}}_{1}'$ from Example~\ref{exa-baav}; $Q_{1}$ is
+scan-free over both $\kb{\at{T}}_{1}$ and $\kb{\at{T}}_{1}'$
+while its scan-free plan over $\kb{\at{T}}_{1}$ is superior than
+that over $\kb{\at{T}}_{2}$ since it fetches fewer attributes
+and hence access fewer values. Moreover, }
+
+
+
+
+
+
+We propose four criteria to quantify
+the quality of \bdss. 
+Consider workload $\Q$ over database schema $\R$, where (a) each
+parametric query $Q$ in $\Q$ is associated with an importance
+weight $w_{Q}$ representing, \eg the frequency of $Q$ 
+instantiated and executed, and (b) each relation $R$ in $\R$
+has a coefficient $l_{R}$ denoting, \eg its update frequency.
+
+\eetitle{(1) Scan-free evaluability}.
+The first criterion, referred to as the {\em scan-free
+evaluability} of $\kb{\R}$ for $\Q$ and denoted by $\usf(\Q,
+\kb{\R})$, measures the number of queries in $\Q$ that are not
+scan-free over $\kb{\R}$. More specifically, $\sf(\Q, \kb{\R})$
+is defined as
+\vspace{-0.7ex}
+\[\usf(\Q, \kb{\R}) = \textstyle \sum_{Q\in \Q} w_{Q} * (1 - \sf(Q, \kb{\R})),
+\vspace{-0.7ex}\]
+where $\sf(Q,\ak \kb{\R})$ is 1 if query
+$Q$ is scan-free over $\kb{\R}$
+and is 0 otherwise. Intuitively, $\usf(\Q,\ak \kb{\R})$ measures
+the total number of queries in $\Q$ that are not scan-free over
+$\kb{\R}$,
+and it is magnified by their instantiation frequencies.
+By minimizing $\usf(\Q,\ak \kb{\R})$, we favor queries that are
+frequently executed and aim to make as many of them
+  scan-free as possible over $\kb{\R}$.
+
+\eetitle{(2) Data access}.
+The second criterion measures
+the amount of data fetched over $\kb{\R}$.
+%
+To illustrate this,
+recall $Q_{1}$ and the \bs $\kb{\at{T}}'$ from
+Example~\ref{exa-baav},
+and \bds $\kb{\R}_{1}$ from Example~\ref{exa-mapping}. Let $\kb{\R}'_{1}$
+be a revision of $\kb{\R}_{1}$ with $\kb{\at{T}}_{1}$ replaced by
+$\kb{\at{T}}'$. Then, as discussed in Example~\ref{exa-baav},
+$Q_{1}$ is also scan-free over $\kb{\R}'_{1}$  but it accesses many
+more data values than over $\kb{\R}_{1}$. 
+This motivates us to further minimize the size of accessed data, 
+which can be abstracted by the
+degrees of the \baav instances of $\kb{\R}$.
+
+\vspace{0.36ex}
+More specifically,
+for a $\get(k)$ operation over a \bs $\kb{R}$, the size
+of its accessed data is determined by the degree of the \baav
+instance of $\kb{R}$, which depends on the number of the
+$Y$-attributes of $\kb{R}$.
+For example, $\at{T}_{1}'$ of $\kb{\R}_{1}'$ has fewer
+$Y$-attributes than $\at{T}_{1}$ of $\kb{\R}_{1}$ and hence
+$Q_{1}$ access less data values over $\kb{\R}_{1}'$.
+\looseness = -1
+
+\vspace{0.36ex}
+Therefore, we can characterize the data access of
+$\kb{\R}$ by $\Q$ in terms of its $Y$-attributes
+and minimize it, as follows:
+\vspace{-0.7ex}
+\[
+\textstyle \daccess(\Q, \kb{\R}) = \textstyle
+\sum_{\kb{R}\bschema{X}{Y} \in \kb{\R}} |Y|.
+\vspace{-1ex}\]
+
+
+\eetitle{(3) Space}.
+The third criterion measures
+the size of \baav databases of $\kb{\R}$, for which the need
+is evident.
+We assume that there exists an oracle $\esize(\kb{R})$
+that estimates the size of the \baav instance of \bs $\kb{R}$ in $\kb{\R}$.
+%for the database of interest.
+Examples of $\esize(\kb{R})$ include
+the total number of attributes in $\kb{R}$ (\ie measure of the
+size at the schema level) or the conventional histogram-based
+methods to estimate the number of values in the instance. Given
+$\esize(\kb{R})$, we minimize $\size(\Q, \kb{\R})$ of
+\baav database of $\kb{\R}$ defined as
+\vspace{-0.7ex}
+\[\size(\Q,\kb{\R}) = \textstyle \sum_{\kb{R}\in
+  \kb{\R}}\esize(\kb{R}).
+\vspace{-0.7ex}\]
+
+By default, we assume that $\esize(\kb{R})$ is estimated by the
+number of attributes in $\kb{R}$. All of our results hold
+for more sophisticated size estimations as long as they
+satisfy $\esize(\kb{R}) \leq \esize(\kb{R'})$ when attributes of
+$\kb{R}$ are also attributes of $\kb{R'}$.
+
+\eetitle{(4) Maintenance}.
+The last one captures the maintenance cost of \baav databases.
+We use the update frequency of \bss to measure its incremental
+maintenance cost.
+For \bs $\kb{R}$ that is mapped from a single relation schema
+$R$, its update cost is measured simply as $l_{R}$, \ie the
+update frequency of $R$; when $\kb{R}$ contains attributes mapped
+from multiple relations, its update cost is measured as the
+product of the update frequencies of the relevant relations.
+Formally, this is defined as
+$\update(\Q, \kb{\R})$:
+\vspace{-0.7ex}
+\[\update(\Q,\kb{\R}) = \textstyle\sum_{\kb{R}\in \kb{\R}}\Pi_{R\in \Mc_{\kb{R}}}l_{R},
+\vspace{-0.7ex}\]
+where $\Mc_{\kb{R}}$ consists of the relations from which $\kb{R}$ is mapped. 
+
+\vspace{1ex}
+Intuitively, $\usf(\Q,\kb{\R})$ quantifies the extent of queries in $\Q$
+that can benefit from scan-free evaluation over $\kb{\R}$ %to reduce
+by reducing \get invocations.
+Furthermore, $\daccess(\Q, \kb{\R})$ further captures the
+amount of data access of each \get operation over $\kb{\R}$.
+Minimizing both measures together leads to \bdss over which $\Q$
+has the best evaluation performance. Moreover,
+$\size(\Q, \kb{\R})$ adds the dimension of
+storage cost of $\kb{\R}$ and $\update(\Q, \kb{\R})$ captures incremental
+maintenance cost \wrt the update frequencies of $\R$. Each of the
+four measures is essential and {\em independent}, \ie~no one
+can be expressed by others.
+%\looseness = -1
+
+
+\vspace{0.6ex}
+Note that the smaller the measures are, the better
+$\kb{\R}$ is for $\Q$. Hence, we aim to find $\kb{\R}$ while
+minimizing the measures.
+
+
+
+We aggregate the four measures
+with a rank function:\looseness=-1
+
+\vspace{-0.7ex}
+\mat{2ex}{
+  $f(\Q, \ak \kb{\R})$ = \= $c_{1}*\usf(\Q, \ak \kb{\R}) \ak + \ak c_{2}*\daccess(\Q,
+  \ak \kb{\R})$ \ak + \\
+  \> \hspace{2ex}
+  $\ak c_{3}*\size(\Q, \ak \kb{\R}) \ak + \ak c_{4}*\update(\Q, \ak \kb{\R})$,
+}
+\vspace{-0.7ex}
+
+\noindent
+where coefficients $c_{1}$, \ldots, $c_{4}$ are given by 
+users and are normalized, \ie $\textstyle\sum_{i=1}^{4}c_{i} = 1$.
+That is,  $f(\Q,\ak \kb{\R})$ ranks normalized \bdss $\kb{\R}$ for $\Q$ by 
+aggregating their scores of the four measures.
+
+
+
+
+\begin{example}\label{exa-measures}
+Recall $\kb{\R}_{1}$ and $\kb{\R}_{2}$ from Example~\ref{exa-mapping}.
+Let $\Q$ consist of only $Q_{1}$ from Example~\ref{exa-baav}.
+Assume $w_{Q} = 10$ and $l_{R} = 2$ for each relation $R$ in
+$\R_{1}$. Consider rank function $f_{0}(\Q, \kb{\R})$ with $c_{1} = 0.98$,
+$c_{2} = c_{3} = 0.01$ and $c_{4} = 0$.
+%
+Then $\sf(Q,\ak \kb{\R}_{1}) \ak = \ak 1$ and hence $\usf(\Q, \ak
+\kb{\R}_{1}) \ak = \ak 0$;
+$\daccess(\Q, \ak \kb{\R}_{1}) \ak = \ak 3$;
+$\size(\Q, \ak \kb{\R}_{1}) \ak = \ak 7$; and
+$\update(\Q, \ak \kb{\R}_{1}) \ak = \ak 6$.
+Hence $f_{0}(\Q, \kb{\R}_{1}) = 0.1$.
+
+\vspace{0.6ex}
+For $\kb{\R}_{2}$, we have that $\usf(\Q, \ak
+\kb{\R}_{2})\ak =\ak 0$, $\daccess(\Q, \ak \kb{\R}_{2}) \ak = \ak
+5$, $\size(\Q, \ak \kb{\R}_{2}) \ak = \ak 13$, and $\update(\Q,
+\ak \kb{\R}_{2}) \ak = \ak 12$. Hence, $f_{0}(\Q, \kb{\R}_{2}) =
+0.18$, \ie $\kb{\R}_{2}$ is worse than $\kb{\R}_{1}$ under
+$f_{0}$ (indeed, $\kb{\R}_{1}$ is superior under all aggregate rank functions). 
+
+\vspace{0.6ex}
+Now consider a revision $\kb{\R}_{3}$ of $\kb{\R}_{2}$ without
+%Let $\kb{\R}_{3}$ be a revision of $\kb{\R}_{2}$ without
+$\kb{\at{T}}_{1}$. Then
+%one can verify that
+$Q_{1}$ is not
+scan-free over $\kb{\R}_{3}$ and hence $\usf(\Q,\ak \kb{\R}_{3})
+= 10$; $\daccess(\Q, \ak \kb{\R}_{3}) = 4$; 
+$\size(\Q, \ak \kb{\R}_{3}) \ak = \ak 10$; and
+$\update(\Q, \ak \kb{\R}_{3}) \ak = \ak 10$.
+Then $f_{0}(\Q,\ak \kb{\R}_{3})\ak =\ak 9.94$, \ie $\kb{\R}_{3}$
+is ranked lower than $\kb{\R}_{2}$ by $f_{0}$.
+\end{example}
+
+\vspace{-0.4ex}
+
+
+
+
+\stitle{The problem of \bds selection}.
+The {\em \baav schema selection problem} is to compute,
+given a workload $\Q$ over $\R$ and an aggregate rank function
+$f$ (\ie $c_{1}$, \ldots, $c_{4}$),
+the optimal \bds $\kb{\R}$ for $\Q$ based on $f$, \ie a \bds
+$\kb{\R}$ for $\Q$ with the minimum $f(\Q, \kb{\R})$ among all \bdss
+that are in the normal form for $\Q$.
+
+
+\stitle{Complexity}. Its  decision problem is to decide, given $\Q$, $f$ and a
+number $h$, whether there exists a \bds $\kb{\R}$ for
+$\Q$ such that $f(\Q, \kb{\R})\leq h$.
+We next show that the problem is intractable.
+  Here an \SPC query 
+  is {\em self-join free} if it has no self-join.
+
+
+\begin{theorem}\label{thm-complexity}
+  The \baav schema selection problem
+  is \NP-complete for \warn{\SQL} %\SPC
+  queries. 
+It remains \NP-hard even $\Q$ consists of self-join free
+\SPC queries only \warn{and $c_{3} = c_{4} = 0$ in
+%the aggregate rank function
+$f$.}
+\end{theorem}
+
+%\warn{Extend it to \SQL instead of \SPC}
+\vspace{-0.4ex}
+
+\begin{proofS}
+To verify the upper bound, we first prove a small model
+property: for any \bds $\kb{\R}$, there exists a \bds $\kb{\R}'$
+that consists of no more than $\cd{\Q}$ \bss, each of size
+bounded by $|\R|$, such that $f(\Q, \kb{\R}) \geq f(\Q,
+\kb{\R}')$. Based on this, we give an \NP algorithm for selecting
+  \bds that works as follows:
+it first guesses a set $\kb{\R}$ of \bss with attributes from
+$\R$ such that $\kb{\R}$ contains at most $\cd{\Q}$ \bss,
+each of size at most $|\R|$;
+it then checks whether $f(\Q, \kb{\R})\leq h$ and returns
+$\kb{\R}$ if so.
+
+The lower bound is verified by
+reduction from the minimum set cover problem, which is
+\NP-complete (cf.~\cite{GaJo79}).
+The reduction uses $\Q$ with a single
+self-join free \SPC query and only measures (1) and (2) in the
+aggregate rank function $f$.
+\end{proofS}
+
+

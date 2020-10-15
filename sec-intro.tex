@@ -1,0 +1,640 @@
+%%%%%%%% Section 1 %%%%%%%%
+\section{Introduction}
+\label{sec-intro}
+\vspace{-0.2ex}
+
+Key-value (\kv) stores have been increasingly used in  storing
+relations and answering \SQL queries for
+\warn{data science and analytical workloads},  as indicated by a variety of
+open-source \SQL layers built on \kv stores, \eg Apache
+Cassandra~\cite{cassandra}, Hive~\cite{hive},
+Phoenix~\cite{phoenix}, SparkSQL~\cite{sparksql} and Kudu~\cite{kudu}. \warn{The rationale of
+this practice is,  partially, that \kv stores are often a natural
+database storage in the Hadoop stack. This enables easy and
+convenient integration with parallel computing frameworks such as
+MapReduce, Spark and the aforementioned \SQL layers atop them, to
+harvest the power of parallel computing in the cloud or over
+clusters of commodity machines. After all, it is highly
+impractical to ask data scientists and analysts to configure and run a
+parallel RDBMS, \eg Greenplum~\cite{greenplum} for sometimes
+short lived data science or analytical applications.}
+
+\warn{However, \kv stores were originally designed to target
+workloads of large volumes of point read and write operations,
+with a particular focus on horizontal scalability and
+availability. Indeed,} they adopt a {\em
+tuple-as-a-value} model \warn{for relations}:
+a relation is \warn{conceptually} represented as key-value pairs
+$(k, t)$, where $k$ is its tuple id or primary key $t$
+is the entire tuple.
+They support dictionary-like fast point access to retrieve tuples:
+given a key $k$, a $\get(k)$ operation
+locates the tuple
+associated with $k$ in asymptotically constant time.
+\warn{Such a model, however, makes analytical workloads (\eg
+\SQL) running sub-optimal over relations stored in \kv stores.}
+
+
+\begin{example}\label{exa-taav}
+Consider query $Q_{1}$ to find ``cities with banks that
+have customers shopping at %on
+Amazon on
+June 1st, 2020''. It is
+defined over
+a database schema $\R_{1}$ with three relation schemas
+$\at{bank}(\at{bid},\ak \at{branch},\ak \at{city})$,
+$\at{transaction}(\at{tid},\ak \at{cid},\ak \at{date},\ak
+\at{payee})$ and $\at{customer}(\at{cid},\ak \at{gender},\ak
+\at{address},\ak \at{bid})$. Written in \SQL, $Q_{1}$ is
+
+\vspace{-0.4ex}
+{\small
+  \mat{4ex}{
+    \SELECT\ \ \= \at{B.city}\\
+    \FROM \> \at{bank} {\bf as} \at{B}, \at{transaction} {\bf as}
+    \at{T}, \at{customer} {\bf as} \at{C}\\
+    \WHERE \> \at{T.date} = {\normalsize 2020-06-01} \And
+    \at{T.payee} ={\normalsize `Amazon'}\\
+    \> \And \at{T.cid} =
+    \at{C.cid} \And \at{C.bid} = \at{B.bid}
+  }}
+\vspace{-0.7ex}
+
+Under tuple-as-a-value, \at{transaction} is stored in \kv-store
+by using \at{tid} as the key attribute and all the other
+attributes as the value part. Hence, to answer $Q_{1}$ one
+has to scan \at{transaction} by fetch one tuple per \get;
+similarly  for other relations. In other words, relation scans,
+which are a common operation in \SQL evaluation, incur an excessive
+number of \get invocations over relations in \kv stores.
+\end{example}
+
+\vspace{0.6ex}
+\warn{To remedy the scan overhead for analytical \SQL processing over
+\kv stores, the {\em block-as-a-value} (\baav) model has recently been
+proposed for representing relations in \kv-stores~\cite{VLDB19}}. The idea is to organize
+relations in key-block pairs $(k, B)$ so that a set $B$ of values
+is associated with key $k$. It allows us to assign arbitrary
+attributes for $k$, not necessarily tuple id or primary keys.
+Given such a key $k$, it fetches its block $B$ at once.
+As shown in~\cite{VLDB19}, \baav helps us avoid relation scans;
+under the tuple-as-a-value model, scan is implemented via
+a sequence of %an excessive number
+of $\get()$ operations without known keys,
+and often fetches excessive irrelevant data. By fetching a block
+of values at a time, \baav reduce these costly operations.
+
+
+
+\begin{example}\label{exa-baav}
+\warn{Continue Example~\ref{exa-taav}.}
+Under \baav~\cite{VLDB19}, one can represent \at{transaction} as
+$\kb{\at{T}}_{1}\bschema{(\at{date},\ak \at{payee})}{\at{cid}}$,
+\at{customer} as $\kb{\at{C}}_{1}\bschema{\at{cid}}{\at{bid}}$,
+and \at{bank} as $\kb{\at{B}}_{1}\bschema{\at{bid}}{\at{city}}$.
+Then $Q_{1}$ can be answered using three \get operations
+from such relations, without any table scans:
+(a) It first fetches all $\at{cid}'s$ for ({\normalsize 2020-06-01},
+{\normalsize `Amazon'}), via one \get over $\kb{\at{T}}_{1}$.
+(b) It then fetches associated $\at{bid}'s$ for each
+\at{cid} fetched in (a), via one \get over $\kb{\at{C}}_{1}$.
+(c) It finally fetches all $\at{city}'s$ for $\at{cid}'s$
+retrieved in (b), one \get~for %per
+each \at{cid} over $\kb{\at{B}}_{1}$.
+This illustrates the flexibility and benefits of the \baav
+model: it allows us to retrieve only necessary data values for
+answering $Q_{1}$ without the costly scans. %over \kv-stores.
+
+However, the performance of $Q_{1}$ heavily relies on the way how
+the relations are mapped into the \baav forms. Indeed, the
+tuple-as-a-model schemas are a special case of the \baav
+schemas, but $Q_{1}$ has to fully scan all three relations. Even $Q_{1}$
+can be made scan-free, its performance may still vary over
+different \baav schemas. For example, assume that
+we replace $\kb{\at{T}}_{1}$
+with $\kb{\at{T}_{1}'}\bschema{\at{date}}{(\at{payee},\ak
+  \at{cid},\ak \at{tid})}$, the %above
+scan-free query %evaluation
+plan above
+still works but retrieves much %many
+more data %values
+from $\kb{\at{T}_{1}'}$.
+\end{example}
+\looseness = -1
+
+As shown in Example~\ref{exa-baav}, \baav supports {\em scan-free
+query evaluation} provided with a good \baav schema.  However,
+its performance highly depend on how the schema is designed.
+While algorithms have been developed for
+% checking and
+evaluating %scan-free
+queries over a \baav schema~\cite{VLDB19}, an open question is
+how to design ``the best'' \baav schema?
+
+\eetitle{Challenges}. In a nutshell, given a query load
+$\Q$, we want to design ``the best'' \baav schema
+$\kb{\R}$ that allows us to evaluate queries in $\Q$
+with minimum time and space, \warn{by leveraging scan-free
+\SQL evaluation provided by \baav.}
+%without costly scans.
+Here we consider parametric \SQL 
+queries $Q[P_Q]$, where $P_Q$ is a set of attributes
+that will be instantiated by users before execution.
+Such queries are widely used in banks, supply chains and 
+web search forms of e-commerce companies, among others.
+Given a
+set $\Q$ of parametric \SQL queries posed on an underlying
+database schema $\R$, we aim to design a \baav schema
+$\kb{\R}$ to store relations of $\R$ and 
+answer queries of $\Q$ over \kv stores.
+
+\vspace{0.36ex}
+This schema selection problem is nontrivial.
+For conventional database schema design, a variety of
+normal forms covered by textbooks provide us with
+guidelines~\cite{AbHuVi1995}.
+When it comes to \baav schema, no normal form is
+yet in place. A number of questions have to be answered.
+How to measure
+the quality of a \baav schema $\kb{\R}$ for a query load $\Q$?
+How to group key and value attributes for $\kb{\R}$
+so that queries posed on underlying database of $\R$
+can be answered over \kv stores while minimizing scans and
+data retrieval, \warn{optimally leveraging the scan-free
+evaluability over \baav stores?}
+How to reduce the space overhead of
+storing relations of $\R$ as \baav pairs 
+in a \kv system?
+%How to reduce incremental maintenance cost
+%of \kv stores in response to updates to the underlying
+%databases of $\R$?
+What is the complexity of this multi-criteria
+optimization problem? Is it possible at
+all to develop an efficient algorithm for schema
+selection or is it beyond reach in practice?
+
+
+%%%%%%%%
+\stitle{Contribution \& organization}. This paper tackles these
+questions, and gives a full treatment to the design of
+\baav schemas for parametric \SQL queries over \kv-stores.
+
+\eetitle{(1) A framework} (Section~\ref{sec-schema}). We propose a
+framework to speed up parametric \SQL queries via \baav stores.
+Underlying the framework is a module for selecting a \baav schema
+and answering queries over the \baav database. We also introduce
+a normal form of \baav schemas for parametric \SQL queries.
+
+\eetitle{(2) Ranking \baav database schemas} (Section~\ref{sec-rank}).
+We propose measures to rank \baav schemas for a
+given parametric query workload. Based on these
+we formulate the \baav schema selection problem.
+We show that the problem is \NP-complete and remains \NP-hard
+even for a single join query without self-joins.\looseness=-1
+
+\eetitle{(3) Selecting optimal schemas} (Section~\ref{sec-select}). 
+We develop a method to select the best \baav  schema 
+from any given set $\kb{\A}$ of \baav relation schemas, by reducing it to 
+integer linear programming (ILP). Expressing all the ranking
+criteria in ILP, it computes an optimal \baav
+schema by using existing efficient ILP solvers,
+ensuring the scan-free evaluability in particular.
+%\looseness = -1
+
+\eetitle{(4) Computing schema cover} (Section~\ref{sec-cover}).
+We also develop an algorithm that can efficiently construct a
+set $\kb{\A}$ of \baav relation schemas, in polynomial
+size, for a parametric query workload $\Q$ as part of the input
+of the method in (3) above. It guarantees that for each $Q\in \Q$, under
+any ranking function $f$, the optimal \baav schema
+normalized for $Q$ is subsumed in $\kb{\A}$.
+\looseness = -1
+
+Taken together, (3) and (4) provide a practical
+  algorithm for schema selection that guarantees certain optimality.
+  
+
+\eetitle{(5) Experimental study} (Section~\ref{sec-expt}). 
+Using standard benchmarks, we evaluate the effectiveness
+of \baav schema deduced %by our algorithms
+and the efficiency of
+our schema selection algorithms.
+%We find the following.
+(a) With SparkSQL-over-Cassandra, on average \tpch and \tpcds
+queries can be made 4.28 and 7.01 times faster, respectively, over
+\baav schemas that are computed by our algorithms,
+than over schemas generated by the baselines. Moreover, the gaps
+increase when the queries have more joins or the datasets grow bigger.
+% than relations stored under
+% the conventional tuple-as-a-value model.
+(b) Our algorithms are able to select
+the optimal normalized \baav schema for \tpch and \tpcds
+queries within 0.42 and 0.27 seconds, respectively.
+
+
+
+\stitle{Related work}. The related work is organized as follows.
+
+\eetitle{\SQL over \kv-stores}.
+\kv systems~\cite{AmazonKV, FacebookKV, cassandra, bigtable,
+hbase, F1} were originally designed to store schemaless
+\kv-stores (\ie collection of \kv pairs) and to provide low-level
+fast point access to retrieve \kv records. Due to %Because of
+their
+superior horizontal scalability and availability with even
+commodity machines, they have been increasingly used to store
+relations and support scalable \SQL processing over
+\kv-stores~\cite{spanner1,spanner,myrocks}. This is realized by
+the SQL-over-NoSQL architecture~\cite{kvscan}, where relations
+are stored in \kv-stores using the tuple-as-a-value model, and
+\SQL processing is conducted by a separated \SQL
+layer~\cite{cassandra,hive,phoenix,sparksql,drill,impala,kudu} on
+top of the \kv-stores. Its research mainly focuses on the design
+and optimization of \kv systems to improve their point access and
+update performance.
+
+Closer %to this work
+is the recent work~\cite{VLDB19} on the data model used to
+represent relations in \kv-stores. It observed that the
+tuple-as-a-value model, which is the common practice of storing
+relations in \kv systems, may incur excessive overhead of \get
+invocations for \SQL evaluation due to %because of
+frequent %table
+scans
+that do not fit  the point access design of \kv systems well.
+It proposed the \baav model for relations in \kv-stores so as to
+reduce scans for \SQL evaluation over relations in \kv-stores.
+
+\vspace{0.36ex}
+This work targets an open problem left by~\cite{VLDB19}, \ie
+the design, rank and
+selection of a good database schema for relations in \kv-stores
+under the \baav model to support parametric query workloads; the
+study is vital to making use of the \baav model in practice.
+Taken together with the algorithms of~\cite{VLDB19} for
+scan-free evaluation, it makes one step further toward speeding
+up \SQL query answering on \kv systems under the
+block-as-a-value model.
+
+
+
+\warn{
+\eetitle{Index and view selection}.
+Modern \kv systems can also use secondary and covering
+indices to speed up get operations over non-key
+attributes (see \eg~\cite{ChrysafisCDDEGG19}).
+To avoid scanning the entire table for $\get(k)$ operations with
+$k$ on some non-key attributes $X$ of relation $R$ in \kv
+stores, one can build an index on $X$, which conceptually is a
+tuple-as-a-value relation with $X$ padded with tuple
+identifiers of $R$ as a compound key~\cite{QaderCH18}.  While it
+shares similar spirit and objectives of \baav schemas,  index
+assisted \get operations still incur scans over the ``index
+table'' as $k$ is not unique in keys. As discussed in
+\cite{VLDB19}, \baav complements to the indexing
+approach and one can combine the two by building indices over
+\baav relations as well.
+
+Index selection
+(\eg~\cite{BrunoC05,BrunoCKNRS11,PapadomanolakisA07}) is also
+related to the study of \baav schema selection; however, its
+techniques cannot be applied to the latter. In particular,
+index-based data access, in both RDBMS and SQL over \kv
+settings, remains to fetch tuples (or tuple identifiers), while
+values (\ie partial tuples) are fetched and composed when
+answering queries over \baav databases~\cite{VLDB19}. Due to
+this, designing \baav databases involves aligning and reasoning
+about \baav schemas to leverage scan-free evaluability that is
+unique to \baav.
+
+In contrast, index selection typically relies on greedy
+heuristics instead.  While \cite{PapadomanolakisA07} also uses
+ILP to select pre-defined indices, it essentially treats the
+task as a minimum set cover (\msc) problem and adopt ILP
+formulation of \msc directly. As will be shown in
+Section~\ref{sec-rank}, reasoning about scan-free evaluability
+to design \baav schemas requires machinery much more than that
+of \msc.
+
+
+\vspace{0.6ex}
+Similarly, related is also the work of materialized view
+selection (see \cite{DBLP:journals/sigmod/MamiB12} for a
+survey), which is to pick a set of queries so that we can
+materialize their answers and reuse them for future queries to
+save computation as much as possible. Similar to index selection
+above, view selection is often carried out by greedy heuristics
+with additional pruning strategies, which cannot capture the
+complications of reasoning with \baav schemas for scan-free
+evaluation.}
+
+
+
+
+
+
+\eetitle{Database design and normalization}.
+Relational database design and normalization are classical topics
+covered by all database textbooks, which are guided by a %number of
+variety of
+normal forms to reduce data redundancy and update anomalies
+(see~\cite{DBSchema} for a survey). The design of NoSQL database
+schemas has also recently been investigated by \eg
+\cite{NoSQLschema1,NoSQLschema2}. Different from the
+  prior work, we study
+schema design and selection for relational databases in the
+form of \kv-stores, while \cite{NoSQLschema1,NoSQLschema2} are
+for the design of NoSQL databases instead of relations.
+\looseness = -1
+
+
+
+
+\eetitle{Bounded evaluation}.
+Related to the concept of \baav schemas is also the study of
+bounded evaluation~\cite{PODS14,PODS15,SIGMOD16,PODS16}, to
+formalize scale independent query evaluation under access
+constraints, which are, to some extent, a restricted form of the
+\baav schema with cardinality constraints. %(cf.~\cite{VLDB19}).
+Indeed, the techniques of bounded evaluation can be adopted to answer
+queries over \baav databases as observed by \cite{VLDB19}.
+
+
+This work differs from bounded evaluation in that we focuses on
+the selection and design of \baav schemas, while bounded
+evaluation considers deciding scale independence of query
+evaluation %under access constraints.
+in the presence of cardinality constraints.
+This said, the selection method for \baav schemas can be
+  adapted to selecting access constraints, which has not been
+  studied for bounded evaluation.
+
+
+\eat{%EAT
+  \eetitle{\SQL over \kv-stores}.
+\kv systems~\cite{AmazonKV, FacebookKV, cassandra, bigtable,
+hbase, F1} have been originally designed to store schemaless
+\kv-stores (\ie collection of \kv pairs) and to provide low-level
+fast point access to retrieve \kv records. Because of their
+superior horizontal scalability and availability with even
+commodity machines, they have been increasingly used to store
+relations and support scalable \SQL processing over
+\kv-stores~\cite{spanner1,spanner,myrocks}. This is realized by
+the SQL-over-NoSQL architecture~\cite{kvscan}, where relations
+are stored in \kv-stores using the tuple-as-a-value model and
+\SQL processing is enabled by a separated \SQL
+layer~\cite{cassandra,hive,phoenix,sparksql,drill,impala,kudu} on
+top of the \kv-stores. The research mainly focuses on the design
+and optimization of \kv systems to improve their point access and
+update performance.
+
+Closer is the recent work~\cite{VLDB19} on the data model used to
+represent relations in \kv-stores. It observed that the
+tuple-as-a-value model, which is the common practice of storing
+relations in \kv systems, may cause excessive overhead of \get
+invocations for \SQL evaluation because of frequent table scans
+that do not well fit the point access design of \kv systems.
+It proposed the \baav model for relations in \kv-stores so as to
+reduce scans for \SQL evaluation over relations in \kv-stores.
+
+Different from \cite{VLDB19}, we focus on the design, rank and
+selection of a good database schema for relations in \kv-stores
+to support parametric query workloads, which is vital to make use
+of the \baav model in practice; instead, \cite{VLDB19} focuses on
+the properties of the \baav model, \eg scan-free evaluation, and
+the conditions of checking the properties.
+
+\eetitle{Database design and normalization}.
+Relational database design and normalization is a classic topic
+covered by all database textbooks, which is guided by a number of
+normal forms to reduce data redundancy and update anomalies
+(see~\cite{DBSchema} for a survey). The design of NoSQL database
+schemas has also recently been investigated by \eg
+\cite{NoSQLschema1,NoSQLschema2}. Different from them, we study
+the schema design and selection for relational databases in the
+form of \kv-stores, while \cite{NoSQLschema1,NoSQLschema2} are
+for the design of NoSQL databases instead of relations. 
+
+\eetitle{Materialized views}. Related is also the work of view
+selection for materialized views (see
+\cite{DBLP:journals/sigmod/MamiB12} for a survey), which is to
+pick a set of queries so that we materialize their answers and
+re-use them for future queries to save computation as much as
+possible. In some sense, the \baav databases can be viewed as a
+special ``view'', where the view query is simply a relation in
+the form of a \kv-store. Nonetheless, due to the very different
+objectives and focus, conventional view selection techniques cannot carry
+over to the design and select \baav schemas.
+
+\eetitle{Bounded evaluation}.
+Related to the concept of \baav schemas is also the study of
+bounded evaluation~\cite{PODS14,PODS15,SIGMOD16,PODS16}, to
+formalize scale independence of query evaluation under access
+constraints, which are, to some extent, a restricted form of the
+\baav schema with cardinality constraints (cf.~\cite{VLDB19}).
+Indeed, the techniques of bounded evaluation can be adopted to answer
+queries over the \baav databases as observed by \cite{VLDB19}.
+This work differs from bounded evaluation in that we focuses on
+the selection and design of \baav schemas while bounded
+evaluation considers deciding scale independence of query
+evaluation in the presence of cardinality constraints. 
+}%EAT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\eat{%EAT
+  \section{Introduction}
+\label{sec-intro}
+
+While key-value (\kv) systems have been originally designed to
+support dictionary-like data access to retrieve and store large
+datasets often referred to as \kv stores, they found increasingly
+prevalent use in storing relations and supporting \SQL queries.
+For example, a number of open-source \SQL layers have been built
+on top of \kv systems to add the support of \SQL query evaluation
+over \kv-stores, \eg Apache Cassandra~\cite{cassandra},
+Hive~\cite{hive}, Phoenix~\cite{phoenix},
+SparkSQL~\cite{sparksql}, Drill~\cite{drill},
+Impala~\cite{impala} and Kudu~\cite{kudu}.
+
+These \kv stores are implemented as key-value pairs that are
+organized in a distributed hash table (DHT), which is a sparse
+data structure that features fast point access via a \get
+operation: given a key $k$, $\get(k)$ locates the value
+associated with $k$ in asymptotically constant time. As the
+common practice, relations are typically represented in \kv
+stores using the {\em tuple-as-a-value} model, where each tuple
+$t$ is represented as a $(k, t)$, where $k$ is the tuple id or
+primary key of $t$ and $t$ is the entire tuple. Under such model,
+relations are organized as key-tuple pairs that support fast
+point access to retrieve a tuple given its key.
+\looseness = -1
+
+However, as observed in \cite{VLDB19}, scan over relations in \kv
+stores under the tuple-as-a-value model is particularly costly
+since it incurs excessive number of \get invocations to retrieve
+tuples via point accesses. Meanwhile, scan is an inevitable and
+frequently used operation when answering \SQL queries.
+
+To tackle the this, a new model for representing relations in
+\kv-stores, named {\em block-as-a-value} (\baav), has been proposed in
+\cite{VLDB19}, to reduce the costly scans and the amount of data
+access when evaluating \SQL queries over \kv-stores. The idea is to organize
+relations in key-block pairs $(k, B)$ so that a set $B$ of values
+is associated with key $k$. This allows us to assign any
+attributes for $k$, not necessary only tuple id or primary keys.
+As a result, we have more flexibility in representing relations
+in \kv-stores, avoid the costly scans, and reduce the amount of
+data accessed for answering \SQL queries. 
+
+
+\begin{example}\label{exa-baav}
+Illustrate the block-as-a-value model 
+\end{example}
+
+As shown in Example~\ref{exa-baav}, under the \baav
+%block-as-a-value
+model, one can allow scan-free query evaluation over \kv-stores,
+which avoids the costly scans over \kv-stores and reduces the
+amount of data values retrieved for answering \SQL queries. 
+
+While algorithms for checking whether queries can be answered
+over a \baav 
+%block-as-a-value
+schema have been developed in
+\cite{VLDB19}, an open question is how to design the best
+relational databases under this model. As illustrated in
+Example~\ref{exa-baav}, schemas may lead varying performance of
+the queries.
+
+In this work, we answer the problem for a parametric
+queries, which are widely by web applications to interact with
+backend database systems with parameters instantiated during
+execution. Given a set $\Q$ of parametric queries over database
+schema $\R$, we aim to design the best \baav
+%block-as-a-value
+database schema of $\R$ for $\Q$, denoted by $\kb{\R}$,
+such that queries instantiated from $\Q$ can be best supported by
+$\kb{\R}$, and moreover, the cost of storing and maintaining
+instances of $\kb{\R}$ is minimized. 
+
+The problem is nontrivial. While it is related to \eg database
+schema design and view selection in conventional relational
+database systems, it is much more challenging. 
+Apart from existing challenges in database design and view
+selection in the conventional setting, among others we have to
+answer the following questions:
+(1) How to measure the quality of a database schema $\kb{\R}$
+under the \baav model for $\Q$?
+(2) How to pick and group key and value attributes for $\kb{\R}$
+so that queries designed over $\R$ can be optimally answered over
+the new \baav schema $\kb{\R}$?
+(3) How to maintain and use $\kb{\R}$ to answer queries
+instantiated from $\Q$ over original database schema $\R$?
+As will be shown shortly in Section~\ref{sec-rank},
+it is already \NP-hard to find the best
+\baav schema for a single simple join query.
+
+
+
+\stitle{Contribution}. We given a full treatment to the design of
+\baav database schemas for parametric queries over \kv-stores.
+
+\eetitle{(1) A framework} (Section~\ref{sec-schema}). We give a
+framework to speed up parametric queries via \baav stores.
+Underlying the framework is the module for designing and using a
+sibling database under the \baav model for answering parametric
+queries.
+
+\eetitle{(2) Ranking \baav database schemas} (Section~\ref{sec-rank}).
+We propose measures to rank \baav database schemas for a
+given parametric query workload, based on which we formulate the
+problem of \baav schema design. We show that the problem is
+\NP-complete even for a single join query without self-joins.
+
+\eetitle{(3) Selecting optimal schemas} (Section~\ref{sec-select}). 
+We develop a method that can select the best \baav database
+schema, \ie a set of \baav relation schemas, from any given
+universal set of \baav relation schemas, by reducing to integer
+linear programming (ILP). In particular, we express the scan-free
+evaluability property for parametric queries and all the ranking
+measures in ILP so that we can compute the optimal \baav database
+schema by making use of existing efficient ILP solvers.
+\looseness = -1
+
+\eetitle{(4) Computing schema cover} (Section~\ref{sec-cover}).
+We also develop an algorithm that can efficiently construct a
+universe set $\kb{\A}$ of \baav relation schemas of polynomial
+size for a parametric query workload $\Q$, as part of the input
+of step (3) above. It guarantees that for each $Q\in \Q$, under
+any ranking function $f$, the optimal \baav database schema
+normalized for $Q$ is subsumed in $\kb{\A}$.
+\looseness = -1
+
+\eetitle{(5) Experimental study} (Section~\ref{sec-expt}). 
+Using real-life datasets and standard database benchmarks, we evaluate
+the effectiveness of our approach to \baav database schema design
+for \kv-stores. 
+
+
+\stitle{Related work}. The idea of database as a cache is related
+to several strands of research categorized as follows.  To ADD.
+
+
+\eat{%EAT
+\eetitle{Parametric query evaluation}.
+\eat{While there have been a
+host of works on parametric query optimization, they focus on
+deciding whether or when a precomputed query plan for one
+instantiated query should be used for another query instantiated
+from the same parametric
+query~\cite{paraQ1,paraQ2,paraQ3,paraQ4,paraQ5,paraQ6,paraQ7}.
+Instead, \tbc}
+
+
+
+\eetitle{Database design}.
+\eat{As a common practice, database design is typically guided by the
+semantics of the datasets via, \eg entity relationship
+diagrams~\cite{Raghu2000}. Once the database schema is
+determined, it usually will not be altered due to its
+implications on the applications built upon it. On the other
+hand, the query workload that runs over the database is driven by
+the database applications. While it is a folklore that the
+database design has an evident impact on the query performance,
+the disconnection between the database design and the query
+workload leaves this largely unexploited, causing suboptimal
+query performance. \tbc}
+
+
+\eetitle{Caching}.
+\eat{much less attention is paid to the conceptual modeling of cached
+datasets \tbc}
+
+\eetitle{View materialization}.
+
+
+\eetitle{Bounded evaluation}.
+\eat{The concept of cache schema is
+quite related to the study of bounded
+evaluation~\cite{PODS15,SIGMOD16,PODS16,VLDB17,VLDB19}. The idea
+is to organize databases to provide a dictionary like data access
+that fetches sets of distinct data values instead complete tuples
+or columns. Combining with cardinality constraints on the
+datasets, bounded evaluation can answer queries by accessing much
+smaller and even bounded size of data, yielding considerable
+speedups. \tbc}
+}%EAT
+}%EAT

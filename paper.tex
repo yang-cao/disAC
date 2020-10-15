@@ -1,0 +1,91 @@
+\documentclass[sigconf]{acmart}
+\input{commands}
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+\setlength{\aboverulesep}{0.6pt}
+\setlength{\belowrulesep}{0.6pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sloppy
+
+\usepackage[normalem]{ulem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Enumerate and Itemize modifications
+\usepackage{enumitem}
+\setlist{topsep=0pt,noitemsep} \setitemize[1]{label=$\circ$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\sloppy
+
+\widowpenalty=0
+\clubpenalty=0
+\brokenpenalty=0
+
+
+
+%\def\baselinestretch{1.0068}
+
+
+\title{{Scan-free Evaluable Schema Selection with Block as a Value}}
+    %Key-value Stores}}
+
+\author{Yang Cao, Wenfei Fan, Tengfei Yuan}
+
+\affiliation{%
+  \institution{
+    University of Edinburgh
+}}
+%\affiliation{\institution{\{yang.cao@, wenfei@inf,
+%    yanghao.wang@\}ed.ac.uk\hspace*{2ex} yike@cse.ust.hk}}
+
+
+
+\begin{document}
+
+\date{}
+
+\begin{abstract}
+  This paper studies \revise{schema} selection for key-value (KV) stores
+  that take a key and fetch a block of values \revise{as a whole}, rather
+  than \revise{fetching a single tuple at a time}.
+  We consider parametric \SQL queries over KV
+  stores, as commonly found in e-commerce. For such queries,
+  we identify four criteria for selecting a practical schema,
+  to avoid blind scans, speed up data \revise{fetching}, 
+  minimize space overhead and reduce %incremental
+  update maintenance cost.
+  We formalize the schema selection problem under these criteria,
+  and show its \NP-completeness. Despite the intractability, 
+  we develop practical algorithms by means of integer linear programming,
+  to select a schema that guarantees
+  certain optimality under practical conditions.
+  Using standard %real-life and
+  benchmarks,
+  we experimentally verify the
+  effectiveness of the selected schema and the efficiency of the
+  selection algorithm.
+\end{abstract}
+
+\maketitle
+
+\input{sec-intro}
+\input{sec-schema}
+\input{sec-rank}
+\input{sec-select}
+\input{sec-cover}
+\input{sec-expt}
+\input{sec-conclude}
+
+\newpage
+%\renewcommand{\baselinestretch}{0.99}
+\bibliographystyle{abbrv}
+\bibliography{paper}
+
+%\balance
+
+\end{document}
+
+
+

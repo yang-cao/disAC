@@ -1,0 +1,951 @@
+% % make the paper wider while keeping the page layout unaffected 
+% \paperwidth=\dimexpr \paperwidth + 2.0cm\relax
+% \oddsidemargin=\dimexpr\oddsidemargin + 1.0cm\relax
+% \evensidemargin=\dimexpr\evensidemargin + 1.0cm\relax
+% \marginparwidth=\dimexpr \marginparwidth-0.8cm\relax
+% % --------------------------------------------------------
+
+
+%\newcommand{\eat}[1]{}
+%%% \usepackage{ctable} % for \specialrule command
+\usepackage{fixmath}
+\usepackage{amsbsy}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+
+%% the below two lines solves `Too many math alphabets used in
+%% version normal.' caused by bm -- too many math fonts populated
+%% by bm 
+\newcommand\hmmax{0}
+\newcommand\bmmax{0}
+\usepackage{bm}
+
+
+
+%\usepackage{epstopdf} %must come after graphicx
+\usepackage{latexsym}
+% \usepackage{color}
+\usepackage{xcolor}
+\usepackage{epsfig}
+\usepackage{xspace}
+\usepackage{booktabs} % For formal tables
+\usepackage{graphicx}
+\usepackage{epstopdf}
+% \usepackage{geometry}
+%\usepackage{tabularx}
+%\usepackage{ragged2e}
+%\newcolumntype{L}{>{\RaggedRight\arraybackslash}X} % ragged-right version of "X"
+
+
+%\usepackage{times}
+%%%%%\usepackage{subfigure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%\usepackage{cite}
+%\usepackage[pdftex]{graphicx}
+\usepackage{balance}
+\usepackage{hhline}
+\usepackage{float}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DO NOT DELETE!!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%s
+%\usepackage{tikz}
+%\usetikzlibrary{trees}
+
+\usepackage{setspace}
+
+\usepackage{epsfig}
+\usepackage{multirow}
+\usepackage{tabu}
+\usepackage{colortbl}
+
+\usepackage{centernot}
+\usepackage{mathtools}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Enumerate and Itemize modifications
+\let\labelindent\relax
+
+\usepackage{enumitem}
+\setlist{topsep=0pt,noitemsep} \setitemize[1]{label=$\circ$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\eop}{\hspace*{\fill}\mbox{$\Box$}}     % End of proof
+%%\newcommand{\eop}{\qed}
+
+
+\usepackage{changepage}
+% wide page for side by side figures, tables, etc
+\newlength{\offsetpage}
+\setlength{\offsetpage}{0.8cm}
+\newenvironment{widepage}{\begin{adjustwidth}{-\offsetpage}{-\offsetpage}%
+    \addtolength{\textwidth}{2\offsetpage}}%
+{\end{adjustwidth}}
+
+
+
+
+\usepackage{tikz}
+\usepackage{pgf}
+\usepackage{pgffor}
+\usetikzlibrary{positioning,fadings,shapes,arrows,shadows,decorations,fit}
+\usepgfmodule{shapes}
+\usepgfmodule{plot}
+\usetikzlibrary{arrows}
+%\usetikzlibrary{snakes}
+\usepackage{tikz-qtree}
+\usepackage{xparse}
+\usepackage{lipsum}
+%%%%%\usepackage{subcaption}
+
+%\usepackage{caption}
+%\usepackage{subcaption}
+% for figures: caption label is italic, the caption text is bold / italic
+%%%%% \captionsetup[figure]{labelfont=it,textfont={bf,it}}
+% for subfigures: caption label is bold, the caption text normal.
+% justification is raggedright (i.e. left aligned)
+% singlelinecheck=off means that the justification setting is used even when the caption is only a single line long. 
+% if singlelinecheck=on, then caption is always centered when the caption is only one line.
+% \captionsetup[subfigure]{labelfont=normalfont,textfont=it,singlelinecheck=on,justification=raggedright} 
+
+
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+\captionsetup[subfigure]{labelfont=normalfont,textfont=it,singlelinecheck=on,justification=raggedright} 
+\captionsetup[figure]{labelfont=bf,textfont=bf,singlelinecheck=on,justification=raggedright} 
+
+
+
+
+
+
+\sloppy
+\newcommand{\cd}[1]{|{#1}|}
+\newcommand{\cdd}[1]{|\!|{#1}|\!|}
+
+\newcommand{\rtable}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\ratt}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\at}[1]{\protect\ensuremath{\mathsf{#1}}\xspace}
+\newcommand{\myhrule}{\rule[.5pt]{\hsize}{.5pt}}
+\newcommand{\oneurl}[1]{\texttt{#1}}
+\newcommand{\eat}[1]{}
+\newcommand{\stab}{\rule{0pt}{8pt}\\[-1.4ex]}
+\newcommand{\sttab}{\rule{0pt}{8pt}\\[-2ex]}
+\newcommand{\sstab}{\rule{0pt}{8pt}\\[-1.7ex]}
+%\newcommand{\tabstrut}{\rule{0pt}{4pt}\vspace{-0.07in}}
+\newcommand{\tabstrut}{\rule{0pt}{4pt}\vspace{0.36ex}}
+\newcommand{\vs}{\vspace{1ex}}
+\newcommand{\exa}[2]{{\tt\begin{tabbing}\hspace{#1}\=\+\kill #2\end{tabbing}}}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\la}{\leftarrow}
+
+
+
+
+\newlist{myitemize}{itemize}{3}
+\setlist[myitemize,1]{label=$\circ$,leftmargin=3.6ex}
+\setlist[myitemize,2]{label=$\bullet$,leftmargin=4.0ex}
+\setlist[myitemize,3]{label=$\diamond$, leftmargin=3.5ex}
+\newenvironment{mbi}{\begin{myitemize}
+        \setlength{\topsep}{0.6ex}\setlength{\itemsep}{0.36ex}\vspace{0.36ex}}
+        {\end{myitemize}\vspace{0.16ex}}
+\newcommand{\mei}{\end{myitemize}\vspace{0.6ex}}
+\newenvironment{tmbi}{\begin{myitemize}
+        \setlength{\topsep}{0.36ex}\setlength{\itemsep}{0ex}}
+        {\end{myitemize}\vspace{1ex}}
+
+
+
+\newenvironment{bi}{\begin{itemize}
+        \setlength{\topsep}{1ex}\setlength{\itemsep}{0.6ex}\vspace{0.6ex}}
+        {\end{itemize}\vspace{1ex}}
+\newcommand{\ei}{\end{itemize}\vspace{1ex}}
+\newenvironment{be}{\begin{enumerate}
+        \setlength{\topsep}{1ex}\setlength{\itemsep}{0.6ex}\vspace{0.6ex}}
+        {\end{enumerate}\vspace{1ex}}
+\newenvironment{tbi}{\begin{itemize}
+        \setlength{\topsep}{1.2ex}\setlength{\itemsep}{0.16ex}}
+        {\end{itemize}\vspace{-0.7ex}}
+\newenvironment{tbe}{\begin{enumerate}
+        \setlength{\topsep}{1.2ex}\setlength{\itemsep}{0.36ex}\vspace{0.6ex}}
+        {\end{itemize}\vspace{-0.7ex}}
+
+\newcommand{\mat}[2]{{\begin{tabbing}\hspace{#1}\=\+\kill #2\end{tabbing}}}
+%\newcommand{\m}{\hspace{0.05in}}
+\newcommand{\ls}{\hspace{0.1in}}
+%\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}\vspace{1ex}}
+\newcommand{\beqn}{\begin{eqnarray}}
+\newcommand{\eeqn}{\end{eqnarray}}
+\newcommand{\card}[1]{\mid\! #1\!\mid}
+\newcommand{\fth}{\hfill $\Box$}
+\newcommand{\AND}{\displaystyle{\bigwedge_{i=1}^{n}}}
+%\newcommand{\U}[1]{\displaystyle{\bigcup_{#1}}}
+\newcommand{\Sm}[1]{\displaystyle{\sum_{#1}}}
+\newcommand{\stitle}[1]{\vspace{1.2ex}\noindent{\bf #1}}
+\newcommand{\eetitle}[1]{\vspace{0.8ex}\noindent{\em\uline{#1}}}
+\newcommand{\setitle}[1]{\vspace{0.8ex}\noindent{\em\underline{{\bf
+        [}#1{\bf ]}}}}
+\newcommand{\etitle}[1]{\vspace{0.8ex}\noindent{\em{#1}}}
+\newcommand{\eltitle}[1]{\vspace{1.5ex}\noindent{\em{\large #1}}}
+\renewcommand{\t}{\tau}
+\newcommand{\Inh}[1]{\$#1}
+\renewcommand{\r}[1]{{\it rule}(#1)}
+\newcommand{\pa}{\parallel}
+\newcommand{\knull}{\kw{null}}
+\newcommand{\RHS}{\kw{RHS}}
+\newcommand{\ie}{\emph{i.e.,}\xspace}
+\newcommand{\eg}{\emph{e.g.,}\xspace}
+\newcommand{\wrt}{\emph{w.r.t.}\xspace}
+\newcommand{\aka}{\emph{a.k.a.}\xspace}
+\newcommand{\kwlog}{\emph{w.l.o.g.}\xspace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                  Relation Algebra operators
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\smallskip}{\vspace{0.6ex}}
+\newcommand{\RS}{{\small S}\xspace}
+\newcommand{\RA}{\kw{RA}}
+% \newcommand{\RAA}{\kw{RAA}}
+\newcommand{\RAA}{$\kw{RA}_{\kw{aggr}}$\xspace}
+\newcommand{\kRAA}{\kw{RA}_{\kw{aggr}}\xspace}
+\newcommand{\RAAo}{$\kw{RA}_{\kw{aggr}}^{0}$\xspace}
+\newcommand{\kRAAo}{\kw{RA}_{\kw{aggr}}^{0}\xspace}
+\newcommand{\RP}{{\small P}\xspace}
+\newcommand{\RJ}{{\sc j}\xspace}
+\newcommand{\RC}{{\small C}\xspace}
+\newcommand{\RSJ}{{\small SJ}\xspace}
+\newcommand{\RSC}{{\small SC}\xspace}
+\newcommand{\RSP}{{\small SP}\xspace}
+\newcommand{\RPJ}{{\small PJ}\xspace}
+\newcommand{\RPC}{{\small PC}\xspace}
+\newcommand{\RSPJ}{{\sc spj}\xspace}
+
+\newcommand{\CQ}{\kw{CQ}}
+\newcommand{\FO}{\kw{FO}}
+\newcommand{\RSPJU}{{\sc spju}\xspace}
+%\newcommand{\RSPCU}{{\small SPCU}\xspace}
+\newcommand{\RSPJUN}{{\small SPJU$^N$}\xspace}
+\newcommand{\RSPCU}{\kw{SPCU}}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ALGORITHMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\SELECT}{\mbox{{\bf select}}\ }
+\newcommand{\FROM}{\mbox{{\bf from}\ }}
+\newcommand{\WHERE}{\mbox{\bf where}\ }
+\newcommand{\SUM}{\mbox{{\bf sum}}\ }
+\newcommand{\GROUPBY}{\mbox{{\bf group by}}\ }
+\newcommand{\HAVING}{\mbox{{\bf having}}\ }
+\newcommand{\CASE}{\mbox{{\bf case}}\ }
+\newcommand{\END}{\mbox{{\bf end}}\ }
+\newcommand{\WHEN}{\mbox{{\bf when}}\ }
+\newcommand{\EXISTS}{\mbox{{\bf exists}}\ }
+\newcommand{\COUNT}{\mbox{\kw{count}}}
+\newcommand{\INSERTINTO}{\mbox{{\bf insert into}}\ }
+\newcommand{\UPDATE}{\mbox{{\bf update}}\ }
+\newcommand{\SET}{\mbox{{\bf set}}\ }
+\newcommand{\IN}{\mbox{{\bf in}}\ }
+\newcommand{\If}{\mbox{\bf if}\ }
+\newcommand{\Let}{\mbox{\bf let}\ }
+\newcommand{\mathcall}{\mbox{\bf call}\ }
+\newcommand{\Then}{\mbox{\bf then}\ }
+\newcommand{\To}{\mbox{\bf to}\ }
+\newcommand{\Else}{\mbox{\bf else}\ }
+\newcommand{\ElseIf}{\mbox{\bf elseif}\ }
+\newcommand{\While}{\mbox{\bf while}\ }
+\newcommand{\Begin}{\mbox{\bf begin}\ }
+\newcommand{\End}{\mbox{\bf end}\ }
+%\newcommand{\Do}{\mbox{\bf do}\ }
+\newcommand{\Downto}{\mbox{\bf downto}\ }
+\newcommand{\Repeat}{\mbox{\bf repeat}\ }
+\newcommand{\Until}{\mbox{\bf until}\ }
+\newcommand{\For}{\mbox{\bf for}\ }
+\newcommand{\Each}{\mbox{\bf each}\ }
+\newcommand{\Return}{\mbox{\bf return}\ }
+
+
+\newcommand{\ForEach}{\mbox{\bf for each}\ }
+\newcommand{\Or}{\mbox{\bf or}\ }
+\renewcommand{\And}{\mbox{\bf and}\ }
+\newcommand{\Not}{\mbox{\bf not}\ }
+\newcommand{\Break}{\mbox{\bf break}}
+\newcommand{\Continue}{\mbox{\bf continue}\ }
+\newcommand{\RETURN}{\mbox{\bf return}\ }
+\newcommand{\Case}{\mbox{\bf case}\ }
+\newcommand{\Of}{\mbox{\bf of}\ }
+\newcommand{\EndCase}{\mbox{\bf end-case}\ }
+\newcommand{\NIL}{\mbox{\em nil}}
+\newcommand{\False}{\mbox{\em false}\xspace}
+\newcommand{\True}{\mbox{\em true}\xspace}
+\newcommand{\algAND}{{\sc and}\xspace}
+\newcommand{\OR}{{\sc or}\xspace}
+\newcommand{\NOT}{{\sc not}\xspace}
+
+
+
+% %%%%%%%%% ACM Algorithm2e for algorithms
+% % MUST be put after the above self-defined keywords
+% %
+% \usepackage[linesnumbered, ruled, vlined]{algorithm2e} % For algorithms
+% % vlined -- remove END keywords
+% \renewcommand{\algorithmcfname}{ALGORITHM}
+% \SetAlFnt{\small}
+% \SetAlCapFnt{\small}
+% \SetAlCapNameFnt{\small}
+% \SetAlCapHSkip{0pt}
+% \IncMargin{-\parindent}
+% \newcommand{\llIf}[2]{{\let\par\relax\lIf{#1}{#2}}}
+% \newcommand{\llFor}[2]{{\let\par\relax\lFor{#1}{#2}}}
+% \newcommand{\llForEach}[2]{{\let\par\relax\lForEach{#1}{#2}}}
+% %\newcommand{\llForEachc}[3]{{\let\par\relax\lForEach({#1}){#2}{#3}}}
+% \newcommand{\llElse}[1]{{\let\par\relax\lElse{#1}}}
+
+
+%%%%%%%%% ACM Algorithm2e for algorithms
+% MUST be put after the above self-defined keywords
+%
+\usepackage[linesnumbered, ruled, vlined]{algorithm2e} % For algorithms
+% vlined -- remove END keywords
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetKwRepeat{Do}{do}{while}%
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
+\newcommand{\llIf}[2]{{\let\par\relax\lIf{#1}{#2}}}
+\newcommand{\llFor}[2]{{\let\par\relax\lFor{#1}{#2}}}
+\newcommand{\llForEach}[2]{{\let\par\relax\lForEach{#1}{#2}}}
+%\newcommand{\llForEachc}[3]{{\let\par\relax\lForEach({#1}){#2}{#3}}}
+\newcommand{\llElse}[1]{{\let\par\relax\lElse{#1}}}
+%\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+%\SetCommentSty{mycommfont}
+%\SetKwComment{tcp}{\tiny // }{}%
+\SetCommentSty{scriptsize}
+\SetArgSty{textnormal}
+
+
+% https://tex.stackexchange.com/questions/153646/algorithm2e-disabling-line-numbers-for-specific-lines
+\makeatletter
+\newcommand{\nosemic}{\renewcommand{\@endalgocfline}{\relax}}% Drop semi-colon ;
+\newcommand{\dosemic}{\renewcommand{\@endalgocfline}{\algocf@endline}}% Reinstate semi-colon ;
+\newcommand{\pushline}{\Indp}% Indent
+\newcommand{\popline}{\Indm\dosemic}% Undent
+\let\oldnl\nl% Store \nl in \oldnl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
+\makeatother
+
+
+% do N times
+% https://tex.stackexchange.com/questions/434664/algorithm2e-do-n-times 
+\SetKwFor{RepTimes}{repeat}{times}{end}
+
+
+
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
+\newcommand{\myalgorithm}[1]{%
+\begingroup
+\removelatexerror% Nullify \@latex@error
+\begin{algorithm*}[H]
+#1
+\end{algorithm*}
+\endgroup}
+
+
+\usepackage{newfloat}
+\DeclareFloatingEnvironment[fileext=frm,placement={!ht},name=Frame]{myfloat}
+\captionsetup[myfloat]{labelfont=bf}
+\newenvironment{frameenv}[1][]
+{\begin{myfloat}[tb]
+    \caption{#1}
+  \end{myfloat}
+}
+
+
+
+
+
+\newcommand{\kw}[1]{{\ensuremath {\mathsf{#1}}}\xspace}
+
+\newcommand{\kchanged}{{\small \kw{CHANGED}}}
+
+
+
+\newcounter{ccc}
+\newcommand{\bcc}{\setcounter{ccc}{1}\theccc.}
+\newcommand{\icc}{\addtocounter{ccc}{1}\theccc.}
+\newcommand{\preProcessing}{{\mbox{\small\sf preProcessing}\xspace}}
+\newcommand{\CFDconsistency}{{\mbox{\small\sf CFD\_Checking}\xspace}}
+\newcommand{\MCS} {\kw{MCS}}
+\newcommand{\templateDB}{{\mbox{\small\sf templateDB}\xspace}}
+\newcommand{\ChaseChecking}{{\mbox{\small\sf RandomChecking}\xspace}}
+\newcommand{\chase}{{\mbox{\small\sf Chase}\xspace}}
+\newcommand{\SAT}{{\mbox{\small\sf SAT}\xspace}}
+\newcommand{\kSAT}{{\mbox{\small 3SAT}\xspace}}
+
+\newcommand{\bchk}{\kw{BChk}}
+\newcommand{\ebchk}{\kw{EBChk}}
+\newcommand{\sebchk}{\kw{sEBChk}}
+\newcommand{\findDP}{\kw{FindDP}}
+\newcommand{\seval}{\kw{sQPlan}}
+\newcommand{\evalr}{\kw{evalQR}}
+\newcommand{\evalh}{\kw{evalQ_{h}}}
+\newcommand{\eechk}{\kw{EEChk}}
+\newcommand{\seechk}{\kw{sEEChk}}
+\newcommand{\optvf}{\kw{optVF2}}
+\newcommand{\vf}{\kw{VF2}}
+\newcommand{\gsim}{\kw{gsim}}
+\newcommand{\optgsim}{\kw{optgsim}}
+
+\newcommand{\PropCFDSPCU}{\kw{Prop{\small CFD\_SPCU}}}
+\newcommand{\UnionEQs}{\kw{UnionEQs}}
+\newcommand{\UnionCFDs}{\kw{UnionCFDs}}
+\newcommand{\EQ}{\kw{EQ}}
+\newcommand{\eq}{\kw{eq}}
+\newcommand{\key}{\kw{key}}
+\newcommand{\rep}{\kw{rep}}
+\newcommand{\PEQ}{\kw{EQ2CFD}}
+\newcommand{\Drop}{\kw{Drop}}
+\newcommand{\Res}{\kw{Res}}
+\newcommand{\AR}{{\small AR}\xspace}
+\newcommand{\ARs}{{\small AR}s\xspace}
+\newcommand{\CFD}{{\small CFD}\xspace}
+\newcommand{\CFDs}{{\small CFD}{\small s}\xspace}
+\newcommand{\CIND}{{\sc cind}\xspace}
+\newcommand{\cind}{{\small \sf CIND}}
+\newcommand{\cfd}{{\small \sf CFD}}
+\newcommand{\CINDp}{{\sc cind}$^+$\xspace}
+\newcommand{\CINDn}{{\sc cind}$^-$\xspace}
+\newcommand{\CINDs}{{\sc cind}{\small s}\xspace}
+\newcommand{\FD}{\kw{FD}}
+\newcommand{\FDs}{\kw{FDs}}
+\newcommand{\IND}{{\sc ind}\xspace}
+\newcommand{\INDs}{{\sc ind}{\small s}\xspace}
+\newcommand{\TGDs}{{\sc tgd}{\small s}\xspace}
+\newcommand{\BD}{\kw{BD}}
+\newcommand{\BDT}{\kw{BDT}_\kw{P}}
+\newcommand{\BDTQ}{\kw{BDT}_\kw{Q}}
+\newcommand{\NP}{\kw{NP}}
+\renewcommand{\P}{\kw{P}}
+\newcommand{\klog}{\kw{log}}
+\newcommand{\NL}{\kw{NL}}
+\newcommand{\SPC}{\kw{SPC}}
+\newcommand{\logspace}{\kw{log}-\kw{space}}
+\newcommand{\polylogT}{\kw{polylog}-\kw{time}}
+\newcommand{\polylogS}{\kw{polylog}-\kw{space}}
+\newcommand{\DAGs}{{\small DAG}s\xspace}
+
+\newcommand{\redu}{\leqslant_{\text{\sl fa}}^\NC}
+\newcommand{\reduf}{\leqslant_F^\NC}
+
+\newcommand{\NC}{\kw{NC}}
+\newcommand{\coNP}{co\kw{NP}\xspace}
+\newcommand{\PTIME}{\kw{PTIME}}
+\newcommand{\PSPACE}{\kw{PSPACE}}
+\newcommand{\EXPTIME}{\kw{EXPTIME}\xspace}
+\newcommand{\NPSPACE}{\kw{NPSPACE}\xspace}
+\newcommand{\EXPSPACE}{\kw{EXPSPACE}}
+\newcommand{\dom}{\protect\ensuremath{\mathsf{dom}}\xspace}
+%\newcommand{\adom}{\protect\ensuremath{\mathsf{Adom}}\xspace}
+\newcommand{\atset}{\protect\ensuremath{\mathsf{attr}}\xspace}
+\newcommand{\attr}[1]{\protect\ensuremath{\mathsf{#1}}\xspace}
+\newcommand{\attrset}{\protect\ensuremath{\mathsf{attr}}\xspace}
+\newcommand{\finatset}{\protect\ensuremath{\mathsf{finattr}}\xspace}
+\newcommand{\pvar}{\protect\ensuremath{\mathsf{var\%}}\xspace}
+\newcommand{\lLHS}{\protect\ensuremath{\mathsf{{\small LHS}}}\xspace}
+\newcommand{\RBR}{\kw{RBR}}
+\newcommand{\SQL}{SQL\xspace}
+\newcommand{\sql}{\kw{SQL}}
+\newcommand{\XSLT}{{\sc xslt}\xspace}
+\newcommand{\DBMS}{\kw{DBMS}}
+\newcommand{\DBMSs}{{\small DBMSs}\xspace}
+\newcommand*\dbms{\DBMS}
+\newcommand*\dbmss{\DBMSs}
+\newcommand{\ATG}{{\sc atg}\xspace}
+\newcommand{\ATGs}{{\sc atg}{\small s}\xspace}
+\newcommand{\EBI}{{\sc ebi}\xspace}
+\newcommand{\GO}{{\sc go}\xspace}
+\newcommand{\VEC}[1]{{\sc vec}(#1)}
+\newcommand{\DAG}{{\small DAG}\xspace}
+\newcommand{\XQ}{{\sc xq}\xspace}
+\newcommand{\XQwc}{{\sc xq}$^{\scriptscriptstyle[*]}$\xspace}
+\newcommand{\XQdes}{{\sc xq}$^{\scriptscriptstyle[//]}$\xspace}
+\newcommand{\XQfull}{{\sc xq}$^{\scriptscriptstyle[*,//]}$\xspace}
+\newcommand{\vect}[1]{$\langle$ #1 $\rangle$}
+\newcommand{\sem}[1]{[\![#1]\!]}
+%\newcommand{\NN}[2]{#1\sem{#2}}
+\newcommand{\e}[2]{{\mathit (#1,#2)}}
+\newcommand{\ep}[2]{{\mathit (#1,#2)+}}
+\newcommand{\brname}{\ensuremath{{\mathsf{N}}}}
+\newcommand{\budrel}[1]{\ensuremath{{\brname_{#1}}}}
+\newcommand{\budgen}[2]{\ensuremath{Q^\brname_\e{#1}{#2}}}
+\newcommand{\budcut}[2]{\ensuremath{Q_\e{#1}{#2}}}
+\newcommand{\R}{{\mathcal R}}
+\renewcommand{\G}{{\mathcal G}}
+\newcommand{\I}{{\mathcal I}}
+\newcommand{\V}{{\mathcal V}}
+\newcommand{\E}{{\mathcal E}}
+
+\newcommand{\po}{\preceq}	% for partial order
+\newcommand{\spo}{\prec}
+
+
+
+\newcounter{example}%[section]
+\renewcommand{\theexample}{\arabic{example}}
+\newenvironment{example}{
+        \vspace{1.2ex}
+        \refstepcounter{example}
+        {\noindent\bf Example \theexample:}}{
+        \eop\vspace{1.2ex}}     
+\def\copyrightspace{}
+\renewcommand{\ni}{\noindent}
+\newcommand{\comlore}[1]{\begin{minipage}{3in}\fbox{\fbox{\parbox[t]{3in}{{\vspace{2mm}\noindent \bf COMM(LORE):~
+{ #1}\hfill  END.}}}}\end{minipage}\\}
+\newcommand{\comwenfei}[1]{\begin{minipage}{3in}\fbox{\fbox{\parbox[t]{3in}{{\vspace{2mm}\noindent \bf COMM(WENFEI):~
+{ #1}\hfill  END.}}}}\end{minipage}\\}
+\newcommand{\comshuai}[1]{\begin{minipage}{3in}\fbox{\fbox{\parbox[t]{3in}{{\vspace{2mm}\noindent \bf COMM(SHUAI):~
+{ #1}\hfill  END.}}}}\end{minipage}\\}
+\newcommand{\nthesection}{\arabic{section}}
+
+
+\newcounter{ob}
+\renewcommand{\theob}{\arabic{ob}}
+\newenvironment{ob}{\begin{em}
+        \refstepcounter{ob}
+        {\vspace{1ex} \noindent\bf  Observation \theob:}}{
+      \end{em}\eop\vspace{1ex}} %\hspace*{\fill}\vspace*{1ex}}
+   
+\newcounter{theorem}%[section]
+\renewcommand{\thetheorem}{\arabic{theorem}}
+\newcounter{prop}%[section]
+\renewcommand{\theprop}{\arabic{theorem}}
+\newcounter{lemma}%[section]
+\renewcommand{\thelemma}{\arabic{theorem}}
+\newcounter{cor}%[section]
+\renewcommand{\thecor}{\arabic{theorem}}
+\newenvironment{theorem}{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1ex} \noindent\bf  Theorem  \thetheorem:}}{
+      \end{em}\eop\vspace{1ex}} %\hspace*{\fill}\vspace*{1ex}}
+\newenvironment{prop}{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1ex}\noindent \bf Proposition \theprop:}}{
+        \end{em}\eop\vspace{1ex}}%\hspace*{\fill}\vspace*{1ex}}
+\newenvironment{cprop}[1]{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1.5ex}\noindent \bf Proposition \theprop~#1:}}{
+        \end{em}\eop\vspace{1.5ex}}%\hspace*{\fill}\vspace*{1ex}}
+\newenvironment{clemma}[1]{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1ex}\noindent\bf Lemma \thelemma~#1:}}{
+      \end{em}\eop\vspace{1ex}} %\hspace*{\fill}\vspace*{1ex}}
+\newenvironment{lemma}{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1.5ex}\noindent\bf Lemma \thelemma:}}{
+      \end{em}\eop\vspace{1.5ex}} %\hspace*{\fill}\vspace*{1ex}}
+\newenvironment{cor}{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1.5ex}\noindent\bf Corollary \thecor:}}{
+        \end{em}\eop\vspace{1.5ex}} %\hspace*{\fill}\vspace*{1ex}}
+\newcounter{definition}%[section]
+\renewcommand{\thedefinition}{\arabic{definition}}
+\eat{%EAT
+\newenvironment{definition}{
+        \vspace{1.5ex}
+        \refstepcounter{definition}
+        {\noindent\bf Definition {\bf \thedefinition}:}}{\eop\vspace{1.5ex}
+      }}%EAT
+
+\newcounter{alg}[section]
+\renewcommand{\thealg}{\nthesection.\arabic{alg}}
+\newenvironment{alg}[1]{
+        \refstepcounter{alg}
+        {\vspace{1ex}\noindent\bf Algorithm \thealg:\, #1}}{
+        \vspace*{1ex}}
+\newcounter{arule}
+\renewcommand{\thearule}{\arabic{arule}}
+\newenvironment{arule}{
+        \vspace{0.6ex}
+        \refstepcounter{arule}
+        {\noindent \em Rule \thearule:}}{
+        }
+\newcounter{claim}
+\renewcommand{\theclaim}{\arabic{claim}}
+\newenvironment{claim}{
+        \vspace{0.6ex}
+        \refstepcounter{claim}
+        {\noindent\em Claim \theclaim:}}{{ Wenfei Fan}\\
+        }
+\renewenvironment{proof}{
+        \vspace{1ex}
+        {\noindent\bf Proof:}}{\eop\vspace{1ex}}
+\newenvironment{proofS}{
+        \vspace{1ex}
+        {\noindent\bf Proof sketch:\ }}{\eop\vspace{1ex}}
+
+
+
+\renewcommand{\P}{\kw{P}}
+\newcommand{\APX}{\kw{APX}}
+\newcommand{\PTAS}{{\small PTAS}\xspace}
+\newcommand{\FPTAS}{{\small FPTAS}\xspace}
+\newcommand{\NPO}{\kw{NPO}}
+
+\newcommand{\inst}{\protect{\mathsf{inst}}\xspace}
+\renewcommand{\lq}{{\mathcal L}_Q}
+\newcommand{\SPCU}{\kw{SPCU}}
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\newcommand{\bc}{{\mathcal B}}
+\newcommand{\df}{{\mathcal D}_I}
+\newcommand{\imp}{\vdash}
+\newcommand{\impq}{\models_{\Gamma,\Sigma}}
+
+
+\newcommand{\bnd}{\kw{Bnd}}
+\newcommand{\ebnd}{\kw{EBnd}}
+\newcommand{\bndm}{\kw{MBnd}}
+\newcommand{\ebndm}{\kw{MEBnd}}
+
+%Dominating problems
+\newcommand{\minb}{\kw{DP}}
+\newcommand{\mineb}{\kw{DPEB}}
+\newcommand{\minbm}{\kw{MDP}}
+%\newcommand{\minebm}{$\kw{minEBnd}_M$}
+\newcommand{\minebm}{\kw{MDPEB}}
+\newcommand{\fdp}{$\kw{findDP_{h}}$\xspace}
+
+\newcommand{\A}{{\mathcal A}}
+\renewcommand{\C}{{\mathcal C}}
+%\newcommand{\B}{{\mathcal B}}
+\newcommand{\N}{{\mathcal N}}
+\newcommand{\fetch}{\kw{fetch}}
+\renewcommand{\L}{\mathcal L}
+\newcommand{\Q}{\mathcal Q}
+\newcommand{\D}{\mathcal D}
+\newcommand{\head}{\kw{head}}
+\newcommand{\tail}{\kw{tail}}
+\newcommand{\QDAM}{\kw{AMP}}
+\newcommand{\oQDAM}{\kw{oAMP}}
+\newcommand{\dQDAM}{\kw{dAMP}}
+\newcommand{\minADAG}{\kw{minA}_{\kw{DAG}}}
+\newcommand{\minASA}{\kw{minA}_{\kw{E}}}
+
+\newcommand{\airca}{\kw{AIRCA}}
+\newcommand{\tfacc}{\kw{TFACC}}
+\newcommand{\mot}{\kw{MOT}}
+\newcommand{\mobc}{\kw{MCBM}}
+\newcommand{\plansql}{\kw{Plan2SQL}}
+\newcommand{\mysql}{MySQL\xspace}
+\newcommand{\xx}{\textcolor{red}{\bf XX}\xspace}
+\newcommand{\tbc}{\textcolor{red}{\bf TBC...}}
+\newcommand{\sqleng}{\kw{evalDBMS}}
+\newcommand{\cov}{\texttt{cov}}
+
+\newcommand*\ascatalog{\kw{AS\_Catalog}}
+\newcommand*\parser{\kw{BE\_Query\_Parser}}
+\newcommand*\checker{\kw{BE\_Checker}}
+\newcommand*\planner{\kw{BE\_Query\_Planner}}
+\newcommand*\executor{\kw{BE\_Plan\_Executor}}
+\newcommand*\telecom{\kw{TLC}}
+\newcommand*\tlc{\kw{TLC}}
+
+\newcommand*\post{\kw{post}}
+\newcommand*\pre{\kw{pre}}
+\newcommand*\dbpedia{\kw{DBpedia}}
+\newcommand*\yago{\kw{YAGO}}
+\newcommand*\sdbpedia{{\small DBpedia}\xspace}
+\newcommand*\syago{{\small YAGO}\xspace}
+
+
+\newcommand*\ak{\allowbreak}
+\newcommand{\BEAS}{\kw{BEAS}}
+\newcommand{\beaswdb}{$\kw{BEAS_{wD}}$\xspace}
+\newcommand{\beasidb}{$\kw{BEAS_{iD}}$\xspace}
+\newcommand*\beas{\BEAS}
+%\newcommand*\beaslite{\kw{BEAS}-{\sc Lite}\xspace}
+\newcommand*\BEASpostgres{\kw{BEAS@Postgres}}
+\newcommand*\beaspostgres{\kw{BEAS@Postgres}}
+\newcommand*\beaspg{\kw{BEAS@P}}
+\newcommand*\BEASmysql{\kw{BEAS@MySQL}}
+\newcommand*\beasmysql{\kw{BEAS@MySQL}}
+\newcommand*\beasmy{\kw{BEAS@M}}
+\newcommand*\beaspgnolap{$\kw{BEAS_{LAP}@P}$\xspace}
+\newcommand*\beaspgnojr{$\kw{BEAS_{JR}@P}$\xspace}
+\newcommand*\beaspgnopa{$\kw{BEAS_{PA}@P}$\xspace}
+\newcommand*\beasmynolap{$\kw{BEAS_{LAP}@M}$\xspace}
+\newcommand*\beasmynojr{$\kw{BEAS_{JR}@M}$\xspace}
+\newcommand*\beasmynopa{$\kw{BEAS_{PA}@M}$\xspace}
+\newcommand*\beaslitepg{$\kw{BEAS_{L}@P}$\xspace}
+\newcommand*\beaslitemy{$\kw{BEAS_{L}@M}$\xspace}
+\newcommand*\beasnolap{$\kw{BEAS_{LAP}}$\xspace}
+\newcommand*\beasnojr{$\kw{BEAS_{JR}}$\xspace}
+\newcommand*\beasnopa{$\kw{BEAS_{PA}}$\xspace}
+\newcommand*\beaslite{$\kw{BEAS_{L}}$\xspace}
+
+
+\newcommand*\rdbms{{\small RDMBS}}
+\newcommand{\sceq}{\sqsubseteq}
+\newcommand{\wceq}{\widetilde{\sqsubseteq}}
+\newcommand{\ceq}{\sqsubseteq^{c}}
+\newcommand{\pceq}{\sqsubseteq}
+\newcommand{\compq}{\widehat{Q}}
+\newcommand{\VS}{\kw{V}}
+\newcommand{\W}{{\mathcal W}}
+\newcommand{\eps}{\trianglelefteq}
+\newcommand{\mr}{R}
+\newcommand{\Reps}{\mr}
+
+
+
+\newcommand{\where}{\texttt{WHERE}\xspace}
+\newcommand{\from}{\texttt{FROM}\xspace}
+\newcommand{\join}{\texttt{JOIN}\xspace}
+\newcommand{\on}{\texttt{ON}\xspace}
+\newcommand{\sand}{\texttt{AND}\xspace}
+\newcommand{\select}{\texttt{SELECT}\xspace}
+\newcommand{\Groupby}{\mbox{\texttt{GROUP BY}\ }}
+\newcommand{\T}{{\mathcal T}}
+\newcommand{\g}{{\mathcal G}}
+\newcommand{\SPJ}{\kw{SPJ}}
+\newcommand*\as{\kw{\small AS}\xspace}
+\newcommand*\group{{\sc Group}\xspace}
+\newcommand*\by{{\sc By}\xspace}
+\newcommand*\distinct{\texttt{\small DISTINCT}\xspace}
+\newcommand*\aS{\at{S}}
+\newcommand*\aT{\at{T}}
+\newcommand*\FPlan{\at{FPlan}}
+\newcommand*\deduce{\at{deduce}}
+\newcommand*\tranFP{\at{TranFP}}
+\newcommand*\rechase{\at{IncChase}}
+\newcommand*\RLE{\texttt{RLE}\xspace}
+\newcommand*\tid{\at{tid}}
+\newcommand*\id{\at{ID}}
+\newcommand*\ids{\at{IDs}}
+ 
+\newcommand{\RowColor}{\rowcolor{black!65} \cellcolor{white}}
+
+% \newcommand{\todo}[1]{\noindent\hspace{-2ex}\fboxsep0pt\colorbox{cyan!15!}{\begin{minipage}{1.05\linewidth}\parbox[t]{\linewidth}{{\vspace{2mm}\noindent
+%             \textcolor{red}{\bf TODO:}
+% {\em #1}\hfill  \eop}}\end{minipage}}\\}
+
+
+
+
+
+
+%++++++++++++++++ Adding notes, comments, todos ++++++++++++++
+\usepackage[colorinlistoftodos, textwidth=\marginparwidth]{todonotes}
+\presetkeys{todonotes}{color=yellow!50}{}
+\newcommand{\smalltodo}[2][]
+{\todo[caption={#2}, size=\scriptsize, linecolor=red, backgroundcolor=yellow!05, #1]{\renewcommand{\baselinestretch}{0.8}\selectfont#2\par}}
+\newcommand{\note}{\smalltodo}
+\renewcommand{\note}[1]{}
+
+
+\makeatletter
+\if@todonotes@disabled
+\newcommand{\hlfix}[2]{#1}
+\else
+\newcommand{\hlfix}[2]{\texthl{#1}\smalltodo{#2}}
+\fi
+\makeatother
+%Example \hlfix{wrong text}{fix text}~continues here.
+
+
+
+
+
+% \newcommand{\RowColor}{\rowcolor{black!65} \cellcolor{white}}
+% \newcommand{\mytodo}[1]{\noindent\hspace{-2ex}\fboxsep0pt\colorbox{cyan!15!}{\begin{minipage}{1.05\linewidth}\parbox[t]{\linewidth}{{\vspace{2mm}\noindent
+%             \textcolor{red}{\bf TODO:}
+% {\em #1}\hfill  \eop}}\end{minipage}}\\}
+
+
+\newcommand*\mybox[2][green!20]{{%\fboxsep0pt
+\fboxrule.2pt\fboxsep.7pt   
+\fbox{\colorbox{#1}{
+  \begin{minipage}{0.5\textwidth}
+    #2
+  \end{minipage}
+}}
+}}
+% --------------- Adding notes, comments, todos --------
+
+
+
+
+
+
+\newlength{\textfloatsepsave}
+\newenvironment{ctheorem}[1]{\begin{em}
+        \refstepcounter{theorem}
+        {\vspace{1ex}{\noindent \bf Theorem  \thetheorem~[#1]}: }}{
+        \end{em}\eop\vspace{1.5ex}}
+
+      
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}     
+\newcommand*\mycircled[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.6pt} {#1}}}}
+
+
+
+
+
+
+
+\usepackage{array}
+\newcolumntype{?}[1]{!{\vrule width #1}}
+      
+
+
+
+
+%%%% disAC
+\newcommand*\oc{\scalebox{0.85}{\ensuremath{\mathcal{M}}}}
+\newcommand*\oa{\scalebox{0.8}{\ensuremath{\mathcal{O}}}_{\kw{a}}}
+\renewcommand*\oa{\oc}
+\newcommand*\of{\scalebox{0.8}{\ensuremath{\mathcal{O}}}_{\kw{f}}}
+\newcommand*\uas{\kw{UAS}\xspace}
+\newcommand*\puas{\at{\small pUAS}\xspace}
+\newcommand*\oas{$\kw{OAS}$s\xspace}
+\newcommand*\oasp{\kw{OASP}}
+\newcommand*\aschema{\kw{AS}}
+\newcommand*\opus{\kw{OPUS}}
+\newcommand*\assp{\kw{ASSP}}
+\newcommand*\oass{\kw{OASS}}
+% \newcommand{\size}{\texttt{\small size}}
+\newcommand*\qcs{\kw{QCS}}
+\newcommand*\mqk{\kw{MQK}}
+\newcommand*\algoas{\text{\sc CmpOAS}\xspace}
+\newcommand*\cmpoas{\text{\sc CmpOAS}\xspace}
+\newcommand*\seloas{\text{\sc selOAS}\xspace}
+\newcommand*\tpcds{{\small \at{TPC}-\at{DS}}\xspace}
+\newcommand*\tpch{{\small \at{TPC}-\at{H}}\xspace}
+% \newcommand*\G{\mathcal{G}}
+\newcommand*\doas{\kw{dOASP}}
+\newcommand*\Uc{\mathcal{U}}
+\newcommand*\Cc{\mathcal{C}}
+\newcommand*\DkSH{{\sc DkSH}\xspace}
+\newcommand*\XtC{{\small X3C}\xspace}
+\newcommand{\LHS}{\at{{\small LHS}}}
+\newcommand*\onpuas{\text{\sc Opuas}\xspace}
+\newcommand*\release{\text{\sc Release}}
+\newcommand*\pick{\text{\sc Pick}\xspace}
+\newcommand*\blame{\at{blame}}
+\newcommand*\predmark{\text{\sc PredM}\xspace}
+\newcommand*\assel{\text{\sc AsSel}\xspace}
+
+
+
+
+
+
+
+
+
+\newcommand*\baav{{\small \at{BaaV}}\xspace}
+\newcommand*\kb[1]{\vec{#1}}
+\newcommand*\kv{\at{KV}}
+\newcommand*\bd{\kw{bound}}
+\newcommand*\ubd{\kw{unbound}}
+\renewcommand*\deg{\kw{degree}}
+\newcommand*\size{\kw{size}}
+\newcommand*\update{\kw{update}}
+\newcommand*\naive{$\kw{Naive}$\xspace}
+\newcommand*\rmcs{$k\kw{RMCS}$\xspace}
+\newcommand*\sjf{\textup{\at{SJ}-free}\xspace}
+\newcommand*\sj{\at{sj}}
+\newcommand*\F{\mathcal{F}}
+\newcommand*\skey{\kw{\#key}}
+\newcommand*\fk{\at{FK}}
+\newcommand{\est}{\kw{est}}
+\newcommand*\esize{\kw{estS}}
+\newcommand*\merge{\kw{Merge}}
+\newcommand*\decompose{\kw{decompose}}
+\newcommand*\Wc{\mathcal{W}}
+\newcommand*\bdsd{\text{\sc BdsD}\xspace}
+\newcommand*\bschema[2]{\langle #1,\allowbreak #2\rangle}
+\newcommand*\kk{\kw{K}}
+\renewcommand*\Mc{\mathcal{M}}
+\newcommand*\daccess{\kw{daccess}}
+\renewcommand*\sf{\kw{sf}}
+\newcommand*\ssf{\kw{ssf}}
+\newcommand*\usf{\kw{usf}}
+\newcommand*\get{\at{get}}
+\newcommand*\bget{\text{\footnotesize \at{GET}}\xspace}
+
+\newcommand*\bs{{\small \at{BRS}}\xspace}
+\newcommand*\bss{{$\text{\small \at{BRS}}s$}\xspace}
+\newcommand*\bds{\text{\small \at{BDS}}\xspace}
+\newcommand*\bdss{{$\text{\small \at{BDS}}s$}\xspace}
+\newcommand*\opts{\text{\small \at{OPTS}}\xspace}
+\newcommand*\usc{\text{\small \at{USC}}\xspace}
+\newcommand*\qcssel{\text{\small \at{QCSS}}\xspace}
+\newcommand*\uscsel{\text{\small \at{USCS}}\xspace}
+
+
+
+\clubpenalty = -1
+\widowpenalty = -1
+\displaywidowpenalty = -1
+\interfootnotelinepenalty = -1
+
+
+\newsavebox{\fminipagebox}
+\NewDocumentEnvironment{fminipage}{m O{\fboxsep}}
+{\par\kern#2\noindent\begin{lrbox}{\fminipagebox}
+    \begin{minipage}{#1}\ignorespaces}
+    {\end{minipage}\end{lrbox}%
+  \makebox[#1]{%
+    \kern\dimexpr-\fboxsep-\fboxrule\relax
+    \fbox{\usebox{\fminipagebox}}%
+    \kern\dimexpr-\fboxsep-\fboxrule\relax
+  }\par\kern#2
+}
+
+\usepackage[normalem]{ulem}
+\newcommand\redsout{\bgroup\markoverwith{\textcolor{red}{\rule[0.3ex]{4pt}{2.0pt}}}\ULon}
+\newcommand{\del}[1]{\ifmmode\text{\redsout{\ensuremath{#1}}}\else\redsout{#1}\fi}
+
+
+\usepackage[skins,breakable,many]{tcolorbox}
+
+
+\newcommand{\msc}{{\sc msc}}
+
+
+%\newcommand{\reviseS}[1]{{\color{orange}{#1}}}
+%\newcommand{\reviseG}[1]{{\color{blue!20!black!50!green}{#1}}}
+%\newcommand{\reviseB}[1]{{\color{brown}{#1}}}
+\newcommand{\cmt}[1]{{\color{green!50!black}{#1}}}
+
+
+\newcommand{\warn}[1]{{\color{red}{#1}}}
+\newcommand{\revise}[1]{{\color{blue}{#1}}}
+%\newcommand{\revise}[1]{{#1}}
+%\newcommand{\warn}[1]{{#1}}
+
+
+
+\usepackage[final,kerning=true,spacing=true,factor=1100,stretch=15,shrink=15]{microtype}
+\allowdisplaybreaks
+\sloppy
+\widowpenalty=0
+\clubpenalty=0
+\brokenpenalty=0
