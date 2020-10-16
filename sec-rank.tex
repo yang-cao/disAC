@@ -11,14 +11,14 @@ prove its intractability.
 
 \warn{\stitle{Scan-free evaluability}.
 One naturally wants to find \bdss that can make as many queries
-scan-free as possible to benefit from scan-free evaluation
-feature of \baav databases.  However, this alone does not make good \bdss.
+scan-free as possible, to benefit from the feature of scan-free evaluation
+from \baav databases.  However, this alone does not make good \bdss.
 For instance, recall query $Q_{1}$ and \bss $\kb{\at{T}}_{1}$
 and $\kb{\at{T}}_{1}'$ from Example~\ref{exa-baav}; $Q_{1}$ is
 scan-free over both $\kb{\at{T}}_{1}$ and $\kb{\at{T}}_{1}'$
 while its scan-free plan over $\kb{\at{T}}_{1}$ is superior than
-that over $\kb{\at{T}}_{2}$ since it fetches fewer attributes
-and hence access fewer values. Moreover, making all queries
+that over $\kb{\at{T}}_{1}'$ since it fetches fewer attributes
+and hence accesses fewer values. Moreover, making all queries
 scan-free evaluable may not always be possible unless we use
 \bss with small or even empty key attribute sets and large value
 attribute sets, which basically fall back to table scans as the
@@ -59,22 +59,22 @@ of the selected \bds $\kb{\R}$ (\ie maximizing the number of
 queries that can be made scan-free evaluable over $\kb{\R}$)
 tend to minimize the key attributes in the \bss (\ie $X$ in \bs
 $\bschema{X}{Y}$) of $\kb{\R}$.  Since $\kb{\R}$ is in normal
-form for $\Q$, the degrees of $\kb{\R}$ would increase if we
+form for $\Q$, the degree of $\kb{\R}$ would increase if we
 reduce key attributes.  Indeed, optimizing both criteria is
 already intractable, as shown below.}
 
 \begin{lemma}\label{lem-criteria}
 \warn{Given a self-join free \SPC query $Q$ over database schema $\R$
 and an integer $k$, it is already \NP-hard to decide whether
-there exists a \bds $\kb{\R}$ over which $Q$ is scan-free with $\deg(\kb{\R}) \leq k$.}
+there exists a \bds $\kb{\R}$ over which $Q$ is scan-free and $\deg(\kb{\R}) \leq k$.}
 \end{lemma}
 
 \warn{Here an \SPC query is a relational algebra query composed of
 selection, project and Cartesian-product (or join) operators
-only. \SPC queries are the simplest but mostly used sub-class of
+only. \SPC queries are the simplest but mostly used class of
 \SQL queries. A self-join free \SPC query is an \SPC query
 without self-joins.}
-\looseness = -1
+
 
 \begin{proofS} \warn{This is proved by reduction from the minimum set
   cover (\msc) problem, which is \NP-complete
@@ -85,7 +85,7 @@ without self-joins.}
 
 \warn{\eetitle{Intricacy II}. The other challenge of optimizing \bds
 with scan-free evaluability comes from semantic query rewriting.
-Indeed, via syntactic checking a query $Q$ may not look
+Indeed, via syntactic checking, a query $Q$ may not look
 scan-free over a \bds $\kb{\R}$;
 however, one may find a semantically equivalent query $Q'$ which
 is easily verified scan-free over $\kb{\R}$. Indeed, one can
@@ -98,7 +98,8 @@ evaluability is also undecidable for \RA. Here \RA queries are
 \vspace{0.4ex}
 \warn{To alleviate this, we adopt the effective syntax of scan-free
 \SQL queries of \cite{VLDB19} such that we consider scan-free
-queries that are covered by the syntax, which can be checked in
+queries that are covered by the syntax. The syntax can express
+all scan-free \SQL queries up to equivalence and can be checked in
 \PTIME. The effective syntax requires reasoning about the \bss
 over the queries via chasing, in a way that to some extent is
 similar to the implication analysis of functional dependency
@@ -125,13 +126,13 @@ queries in $\Q$ that are {\em not} scan-free evaluable over $\kb{\R}$;
 In particular, $\size(\kb{\R})$ is defined as the total number
 of attributes in \bss of $\kb{\R}$, \ie
 $\size(\kb{\R}) = \sum_{\bschema{X}{Y}\in \kb{R}}|XY|$.
-Intuitively, it is a schema level estimation of the size of \baav databases
+Intuitively, it is an estimation of the size of \baav databases
 of $\kb{\R}$ at the schema level; the smaller $\size(\kb{\R})$
 is, the smaller the \baav databases of $\kb{\R}$.}
 
 
 \warn{\stitle{Remark}. (1) We acknowledge that there are many
-other conventional criteria for ranking indices and views can
+other conventional criteria for ranking indices and views that can
 also be applied to measure \bdss, such as the database size and
 incremental maintenance cost. However, to focus more on the new
 challenges incited by the \baav model (\ie scan-free
@@ -140,7 +141,7 @@ databases in $f(\Q, \kb{\R})$, measured by $\size(\kb{\R})$ at
 the schema level. In doing so, we also align with the main
 targeted application scenarios of \baav databases, \ie
 analytical \SQL queries for SQL-over-NoSQL (key-value) systems.
-This said, in practice one can include more coarse-grained
+This said, in practice one can incorporate more coarse-grained
 criteria in $f(\Q, \kb{\R})$ based on the targeted applications.
 Our algorithms to be presented shortly are generic and robust to
 such extensions.

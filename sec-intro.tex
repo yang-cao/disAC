@@ -9,14 +9,14 @@ relations and answering \SQL queries for
 open-source \SQL layers built on \kv stores, \eg Apache
 Cassandra~\cite{cassandra}, Hive~\cite{hive},
 Phoenix~\cite{phoenix}, SparkSQL~\cite{sparksql} and Kudu~\cite{kudu}. \warn{The rationale of
-this practice is,  partially, that \kv stores are often a natural
+this practice is that \kv stores are often a natural
 database storage in the Hadoop stack. This enables easy and
 convenient integration with parallel computing frameworks such as
 MapReduce, Spark and the aforementioned \SQL layers atop them, to
 harvest the power of parallel computing in the cloud or over
 clusters of commodity machines. After all, it is highly
 impractical to ask data scientists and analysts to configure and run a
-parallel RDBMS, \eg Greenplum~\cite{greenplum} for sometimes
+parallel RDBMS, \eg Greenplum~\cite{greenplum}, for sometimes
 short lived data science or analytical applications.}
 
 \warn{However, \kv stores were originally designed to target
@@ -31,8 +31,10 @@ They support dictionary-like fast point access to retrieve tuples:
 given a key $k$, a $\get(k)$ operation
 locates the tuple
 associated with $k$ in asymptotically constant time.
-\warn{Such a model, however, makes analytical workloads (\eg
-\SQL) running sub-optimal over relations stored in \kv stores.}
+\warn{While this works well with point accesses, the model
+however causes large scan overhead due to excessive \get
+invocations, which makes it sub-optimal for analytical
+workloads, \eg SQL.}
 
 
 \begin{example}\label{exa-taav}
@@ -309,11 +311,11 @@ answering queries over \baav databases~\cite{VLDB19}. Due to
 this, designing \baav databases involves aligning and reasoning
 about \baav schemas to leverage scan-free evaluability that is
 unique to \baav.
-
-In contrast, index selection typically relies on greedy
+%
+By contrast, index selection typically relies on greedy
 heuristics instead.  While \cite{PapadomanolakisA07} also uses
 ILP to select pre-defined indices, it essentially treats the
-task as a minimum set cover (\msc) problem and adopt ILP
+task as a minimum set cover (\msc) problem and adopts ILP
 formulation of \msc\ directly. As will be shown in
 Section~\ref{sec-rank}, designing \baav schemas
 involves reasoning about scan-free evaluability, which
