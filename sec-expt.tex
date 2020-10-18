@@ -52,46 +52,44 @@ times, while still providing an accurate overall execution time.
 
 
 \eetitle{Aggregate ranking functions}.
-In our experiments, we focused on computing the best \bdss subject to a
-storage budget $B$, a setting commonly found in practice.
-Therefore, we treated the space cost (\ie measure (3)) as a
-constraint in the ILP programs of algorithm \opts
-(Section~\ref{sec-select}). For convenience, we used the
-number of total attributes to measure the space cost of the
-\bdss. Note that this is not a restriction of our approach as the
-measures; as remarked in Section~\ref{sec-rank}, our
-algorithms treat the estimated space cost as input
-and hence support any sophisticated space cost estimation
-for measure (3) as an input.
+In our experiments, we focused on computing the best \bdss
+subject to a storage budget $B$, a setting commonly found in
+practice.  \warn{Therefore, we additionally add the size cost
+also as a constraint in the ILP programs of \opts
+(Section~\ref{sec-select}).}
 
-
-\vspace{0.4ex}
-More specifically, we tested two aggregate ranking functions $f(\Q, \kb{\R}) = c_{1}f_{1} +
-c_{2}f_{2} + c_{4}f_{4}$ (recall
-Section~\ref{sec-rank}), where 
+We tested two aggregate ranking functions
+$f(\Q, \kb{\R}) = c_{1}f_{1} + c_{2}f_{2} + c_{3}f_{3}$ (recall
+Section~\ref{sec-rank}), where
 
 \vspace{0.6ex}
 \bi
-\item[(a)] $f^{(a)}(\Q, \kb{\R})$: $c_{1} = \warn{0.9}$ and $c_{2} = \warn{0.1}$. 
-\item[(b)] $f^{(b)}(\Q, \kb{\R})$: $c_{1} = \warn{0.4}$, $c_{2} =
-  \warn{0.3}$ and $c_{4} = \warn{0.3}$.
+\item[(a)] $f^{(a)}(\Q, \kb{\R})$: $c_{1} = \warn{0.9}$,
+$c_{2} = \warn{0.1}$ and $c_{3} = 0$.
+\item[(b)] $f^{(b)}(\Q, \kb{\R})$: $c_{1} = \warn{0.33}$, $c_{2} =
+  \warn{0.33}$ and $c_{3} = \warn{0.34}$.
 \ei
 Intuitively, $f^{(a)}$ is to compute the \bdss that can make the
-largest number of queries scan-free, by using rank criteria (1) and (2);
-here we include criterion (2) with a smaller coefficient to ensure
+largest number of queries scan-free, by maximizing scan-free
+evaluability and minimizing the degrees of selected \bdss.
+\warn{Here we used a small $c_{2}$ to ensure
 that the performance of scan-free query processing over the optimal
 \bdss is optimized even the selection algorithm \opts of
 Section~\ref{sec-select} takes as input an arbitrary %any arbitrary
-universe set $\kb{\A}$.
+universe set $\kb{\A}$.}
 Instead, $f^{(b)}$ is to
-%prioritize the performance of query evaluation over the \bdss while
-also take into account the incremental maintenance 
-with criterion (4), in addition to optimizing the
-performance of query evaluation over the \bdss. 
+%prioritize the performance of query evaluation over the \bdss
+%while
+\warn{take all the criteria with equal importance.}
+
+\warn{Indeed, as will be shown shortly, in practice we found that
+the algorithm is quite stable \wrt the coefficients as long as
+all the criteria are taken into account in $f(\Q, \kb{\R})$.
+It produces similar \baav schemas with variants of $f^{(b)}$
+assigned with varying coefficients.}
 
 
-
-
+\eat{%EAT
 \vspace{0.6ex}
 Observe that the two aggregate ranking functions above represent two
 scenarios in practice: if one wants to maximize speedup via
@@ -99,28 +97,29 @@ scan-free evaluation, then $f^{(a)}$ is the choice by prioritizing
 scan-free evaluability while also minimizing the degrees of the \bdss.
 If one additionally considers incremental maintenance cost,
 then $f^{(b)}$ fits it the best.
+}%EAT
 
 
-
-\eetitle{Algorithms}. We implemented our algorithms \opts
+\eetitle{Algorithms}. We implemented algorithms \opts
 (Section~\ref{sec-select}) and \usc (Section~\ref{sec-cover}). We
 used Gurobi~\cite{gurobi} to solve ILP-(I) and ILP-(II) of \opts.
 In particular, when implementing \usc, we lifted the restriction
-on the size of $\Sigma$ \warn{for} procedure \decompose (see the remark
-at the end of Section~\ref{sec-cover}). This allows \usc to
+on the size of $\Sigma$ for procedure \decompose (see the remark
+in Section~\ref{sec-cover}). This allows \usc to
 generate a larger universe set for \opts; as will be shown
 shortly, our approach is still efficient in this case.
 
-\vspace{0.7ex}
-We also designed two baselines to compare with.
 
-\etitle{(1) Algorithm \qcssel} that simply returns the collection
+
+\etitle{Baselines}. We also designed two baselines to compare with.
+
+\sstab (1) Algorithm \qcssel that simply returns the collection
 of all \qcs of all queries as the schemas, under the
 tuple-as-a-value model; that is, it treats each \qcs $W$ as a \bs
 $\bschema{\at{id}}{W}$, where $\at{id}$ is an id attribute (or
 the candidate key) for $W$.
 
-\etitle{(2) Algorithm \uscsel} that returns $\kb{\R}$ that consists
+\sstab (2) Algorithm \uscsel that returns $\kb{\R}$ that consists
 of \bss $\kb{R}\bschema{P_{Q}^{R}}{Y_{Q}^{R}}$ for each relation $R$
 in each query $Q$ of $\Q$.
 
@@ -142,17 +141,17 @@ test results.
 The experiments were conducted on a cluster of 4 instances of
 Centos 7 virtual machines (VMs). Each VM has 2 vCPUs, 8GB of
 memory and 150GB of HDD disk. 
-We used SparkSQL v\warn{2.4.0} over Cassandra v\warn{3.11.6} as the \kv
+We used SparkSQL v2.4.0 over Cassandra v3.11.6 as the \kv
 system with \SQL evaluation support. %.%.%.%.%.%.%.%.%h 4GB of memory.
 We built the sibling databases according to the computed \bdss by
 all the methods, and carried out query evaluation over the
 sibling \baav databases using the algorithms of \cite{VLDB19}.
 Each VM works as both a computing node and a storage node, \ie it works
-as a Spark master/slave for the SQL layer \warn{(with 4GB of memory)} and also holds a
-Cassandra partition for the storage \warn{(also with 4GB of memory)}.
+as a Spark master/slave for the SQL layer (with 4GB of memory) and also holds a
+Cassandra partition for the storage (also with 4GB of memory).
 By default, we set the storage budget $B_{\at{max}}$ of the
-\bdss to be \warn{0.7 times of the size of the \tpcds database schema,
-and 2.5 times for \tpch.}
+\bdss to be 0.7 times of the size of the \tpcds database schema,
+and 2.5 times for \tpch.
 %where size is measured by the number of attributes in our case (other
 %more sophisticated size measures can be adopted similarly).
 All the tests were run 3 times. The average is reported here.
