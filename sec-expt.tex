@@ -2,45 +2,42 @@
 \section{Experimental Study}
 \label{sec-expt}
 
-Using standard benchmarks, we conducted two sets of experiments to evaluate
-(1) the quality of \bdss computed by our algorithms; and
-(2) the efficiency of our algorithms.
+\warn{Using standard database benchmarks, we conducted four sets of
+experiments to evaluate
+(1) the overall performance of all benchmark queries with \bdss
+computed by our algorithms;
+% compared to the traditional tuple-as-a-value model;
+(2) the effectiveness of scan-free evaluation;
+(3) the quality of \bdss computed by our algorithms vs. the baselines; and
+(4) the efficiency of our algorithms.}
 
 
 \stitle{Experimental Settings}. We start with the settings.
 
 \eetitle{Benchmarks}. We used two standard benchmarks
-\tpch~\cite{tpch} and \tpcds~\cite{tpcds}, including their 
-data generators and built-in parametric queries.
+\tpch~\cite{tpch} and \imdb~\cite{LeisGMBK015}, including their
+data generators (datasets) and built-in queries.
 (1) \tpch generates data using {\small TPC-H}
 \kw{dbgen}~\cite{tpch}, with 8 relations. It has 22 built-in
 parameterized \SQL queries.
-(2) \tpcds generates data using {\small
-TPC-DS} \kw{dbgen}~\cite{tpcds}, with 24 relations. It has 99
-built-in parametric \SQL queries.
+(2) \imdb benchmark includes the \imdb relations~\cite{imdbdata}
+and \xx real-life \SQL queries~\cite{imdbquery}.
 By default, we evaluated the query evaluation performance over
-datasets of \warn{16} GB for both benchmarks. 
+datasets of \xx GB for both benchmarks.
 
 For each relation in the benchmark databases, we assign a random
 update frequency in the range of [1, \warn{3}] for testing the
 incremental maintenance cost of the generated \bdss. 
 
 
-\eetitle{Parametric queries}. We used built-in %parameterized
-parameteric
-queries of both benchmarks. When a query is not
-\SPC, we used its \SPC sub-queries instead. %After this,
-We
-\warn{sampled 15} built-in parametric \SPC\ queries for each
-benchmark. To evaluate with larger workloads and different
-query complexities, we also
-generated \warn{15} %and \warn{15} parametric \SPC
- parametric queries for each of \tpch and \tpcds,
-%respectively,
-where the number \#-\at{join} of joins varied from \warn{1} to
-\warn{5};
-\warn{in total, we had 6 queries for each \#-\at{join} %number of joins
-and all of them are K-FK join only queries.}\looseness=-1
+\eetitle{Parametric queries}.
+\warn{We used built-in %parameterized
+parameteric \SQL queries of both benchmarks. To evaluate with
+larger workloads and the different query complexities, we
+further extracted and populated \xx and \xx sub-queries from
+\tpch and \imdb built-in queries, with the number \#-\at{join}
+of joins varied from \xx to \xx; in total, we had 6 queries for
+each \#-\at{join} for each benchmark.}
 
 \vspace{0.6ex}
 We assigned a random frequency $w_{Q}$ in the range

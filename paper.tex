@@ -1,11 +1,29 @@
-\documentclass[sigconf]{acmart}
+\documentclass[sigconf, nonacm]{acmart}
 \input{commands}
+
 \settopmatter{printacmref=false}
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \pagestyle{plain}
 
 \setlength{\aboverulesep}{0.6pt}
 \setlength{\belowrulesep}{0.6pt}
+
+%% The following content must be adapted for the final version
+% paper-specific
+\newcommand\vldbdoi{XX.XX/XXX.XX}
+\newcommand\vldbpages{XXX-XXX}
+% issue-specific
+\newcommand\vldbvolume{14}
+\newcommand\vldbissue{1}
+\newcommand\vldbyear{2020}
+% should be fine as it is
+\newcommand\vldbauthors{\authors}
+\newcommand\vldbtitle{\shorttitle} 
+% leave empty if no availability url should be set
+\newcommand\vldbavailabilityurl{http://vldb.org/pvldb/format_vol14.html}
+% whether page numbers should be shown or not, use 'plain' for review versions, 'empty' for camera ready
+\newcommand\vldbpagestyle{plain} 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \sloppy
@@ -28,10 +46,11 @@
 %\def\baselinestretch{1.0068}
 
 
-\title{{Scan-free Evaluable Schema Selection with Block as a Value}}
+\title{{Scan-free %Evaluable
+    Schema Selection with Block as a Value}}
     %Key-value Stores}}
 
-\author{Yang Cao, Wenfei Fan, Tengfei Yuan}
+\author{Yang Cao,\ \ \ \  Wenfei Fan,\ \ \ \  Tengfei Yuan}
 
 \affiliation{%
   \institution{
@@ -48,14 +67,16 @@
 
 \begin{abstract}
   This paper studies schema selection for key-value (KV) stores
-  \warn{under the new block as a value (\baav) model that
-  take} a key and fetch a block of values as a whole, rather
+  \revise{under a new block-as-a-value (\baav) model. As opposed to
+    tuple-as-a-value, \baav
+  takes a key and fetch a block of values as a whole, rather
   than fetching a single tuple at a time.
   We consider parametric \SQL queries over KV
   stores, as commonly found in e-commerce. For such queries,
-  we identify \warn{novel criteria, namely scan-free evaluability and
-  degree minimization for selecting \baav schemas
-  to avoid scans and speed up data fetching.}
+  we identify a set of criteria 
+  %\warn{novel criteria, namely scan-free evaluability and degree minimization
+  for selecting \baav schemas
+  to avoid blind scans and speed up data fetching.}
   %and minimize space overhead and reduce %incremental
   %update maintenance cost.
   We formalize the schema selection problem under these criteria,
@@ -72,6 +93,8 @@
 \end{abstract}
 
 \maketitle
+\setcounter{page}{1}
+\pagestyle{plain}
 
 \input{sec-intro}
 \input{sec-schema}
@@ -92,3 +115,4 @@
 
 
 
+ 

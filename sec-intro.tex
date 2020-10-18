@@ -1,25 +1,30 @@
+\vspace{-1.7ex}
 %%%%%%%% Section 1 %%%%%%%%
 \section{Introduction}
 \label{sec-intro}
-\vspace{-0.2ex}
+%\vspace{-0.4ex}
 
 Key-value (\kv) stores have been increasingly used in  storing
 relations and answering \SQL queries for
-\warn{data science and analytical workloads},  as indicated by a variety of
+\revise{data science and analytical applications}, %workloads},
+as indicated by a variety of
 open-source \SQL layers built on \kv stores, \eg Apache
 Cassandra~\cite{cassandra}, Hive~\cite{hive},
-Phoenix~\cite{phoenix}, SparkSQL~\cite{sparksql} and Kudu~\cite{kudu}. \warn{The rationale of
-this practice is that \kv stores are often a natural
+Phoenix~\cite{phoenix}, SparkSQL~\cite{sparksql} and Kudu~\cite{kudu}.
+\revise{The rationale behind
+the practice is that \kv stores are often a natural
 database storage in the Hadoop stack. This enables easy and
 convenient integration with parallel computing frameworks such as
 MapReduce, Spark and the aforementioned \SQL layers atop them, to
-harvest the power of parallel computing in the cloud or over
-clusters of commodity machines. After all, it is highly
+benefit from %harvest the power of
+parallel computing in the cloud or over a  cluster %s
+of commodity machines. After all, it is highly
 impractical to ask data scientists and analysts to configure and run a
-parallel RDBMS, \eg Greenplum~\cite{greenplum}, for sometimes
-short lived data science or analytical applications.}
+parallel RDBMS, \eg Greenplum~\cite{greenplum}.}
+%, for sometimes short lived data science or analytical applications.}
 
-\warn{However, \kv stores were originally designed to target
+\vspace{0.36ex}
+\revise{However, \kv stores were originally designed to target
 workloads of large volumes of point read and write operations,
 with a particular focus on horizontal scalability and
 availability. Indeed,} they adopt a {\em
@@ -31,36 +36,40 @@ They support dictionary-like fast point access to retrieve tuples:
 given a key $k$, a $\get(k)$ operation
 locates the tuple
 associated with $k$ in asymptotically constant time.
-\warn{While this works well with point accesses, the model
-however causes large scan overhead due to excessive \get
-invocations, which makes it sub-optimal for analytical
+\revise{While this works well with point data access, the tuple-as-a-value
+  model incurs
+  %however causes large
+  heavy scan overhead due to excessive \get
+  invocations, which make %s
+  it sub-optimal for analytical
 workloads, \eg SQL.}
 
 
 \begin{example}\label{exa-taav}
-Consider query $Q_{1}$ to find ``cities with banks that
-have customers shopping at %on
+Consider query $Q_{1}$ to find ``cities with Walmart branches that
+have customers still shopping at %on
 Amazon on
 June 1st, 2020''. It is
 defined over
-a database schema $\R_{1}$ with three relation schemas
-$\at{bank}(\at{bid},\ak \at{branch},\ak \at{city})$,
+a database schema $\R_{1}$ with three relations
+$\at{Walmart}(\at{bid},\ak \at{branch},\ak \at{city})$,
 $\at{transaction}(\at{tid},\ak \at{cid},\ak \at{date},\ak
 \at{payee})$ and $\at{customer}(\at{cid},\ak \at{gender},\ak
 \at{address},\ak \at{bid})$. Written in \SQL, $Q_{1}$ is
+%\warn{Change: R2O4}
 
-\vspace{-0.4ex}
+\vspace{-0.1ex}
 {\small
   \mat{4ex}{
-    \SELECT\ \ \= \at{B.city}\\
-    \FROM \> \at{bank} {\bf as} \at{B}, \at{transaction} {\bf as}
+    \SELECT\ \ \= \at{W.city}\\
+    \FROM \> \at{Walmart} {\bf as} \at{W}, \at{transaction} {\bf as}
     \at{T}, \at{customer} {\bf as} \at{C}\\
     \WHERE \> \at{T.date} = {\normalsize 2020-06-01} \And
     \at{T.payee} ={\normalsize `Amazon'}\\
     \> \And \at{T.cid} =
-    \at{C.cid} \And \at{C.bid} = \at{B.bid}
+    \at{C.cid} \And \at{C.bid} = \at{W.bid}
   }}
-\vspace{-0.7ex}
+\vspace{-0.3ex}
 
 Under tuple-as-a-value, \at{transaction} is stored in \kv-store
 by using \at{tid} as the key attribute and all the other
@@ -72,8 +81,9 @@ number of \get invocations over relations in \kv stores.
 \end{example}
 
 \vspace{0.6ex}
-\warn{To alleviate the scan overhead for analytical \SQL processing over
-\kv stores, the {\em block-as-a-value} (\baav) model has recently been
+\revise{To alleviate the scan overhead for analytical \SQL processing over
+\kv stores, a %the
+{\em block-as-a-value} (\baav) model has recently been
 proposed for representing relations in \kv-stores~\cite{VLDB19}}. The idea is to organize
 relations in key-block pairs $(k, B)$ so that a set $B$ of values
 is associated with key $k$. It allows us to assign arbitrary
@@ -89,11 +99,11 @@ of values at a time, \baav reduce these costly operations.
 
 
 \begin{example}\label{exa-baav}
-\warn{Continue Example~\ref{exa-taav}.}
-Under \baav~\cite{VLDB19}, one can represent \at{transaction} as
+\revise{Continuing with Example~\ref{exa-taav},}
+under \baav~\cite{VLDB19}, one can represent \at{transaction} as
 $\kb{\at{T}}_{1}\bschema{(\at{date},\ak \at{payee})}{\at{cid}}$,
 \at{customer} as $\kb{\at{C}}_{1}\bschema{\at{cid}}{\at{bid}}$,
-and \at{bank} as $\kb{\at{B}}_{1}\bschema{\at{bid}}{\at{city}}$.
+and \at{Walmart} as $\kb{\at{W}}_{1}\bschema{\at{bid}}{\at{city}}$.
 Then $Q_{1}$ can be answered using three \get operations
 from such relations, without any table scans:
 (a) It first fetches all $\at{cid}'s$ for ({\normalsize 2020-06-01},
@@ -102,38 +112,45 @@ from such relations, without any table scans:
 \at{cid} fetched in (a), via one \get over $\kb{\at{C}}_{1}$.
 (c) It finally fetches all $\at{city}'s$ for $\at{cid}'s$
 retrieved in (b), one \get~for %per
-each \at{cid} over $\kb{\at{B}}_{1}$.
+each \at{cid} over $\kb{\at{W}}_{1}$.
 This illustrates the flexibility and benefits of the \baav
 model: it allows us to retrieve only necessary data values for
-answering $Q_{1}$ without the costly scans. %over \kv-stores.
+answering $Q_{1}$ without the costly scans.\looseness=-1 %over \kv-stores.
 
-However, the performance of $Q_{1}$ heavily relies on the way how
-the relations are mapped into the \baav forms. Indeed, the
+However, the performance of $Q_{1}$ heavily relies on %the way
+how
+the relations are mapped into \baav. %the \baav forms.
+Indeed, the
 tuple-as-a-model schemas are a special case of the \baav
 schemas, but $Q_{1}$ has to fully scan all three relations. Even $Q_{1}$
 can be made scan-free, its performance may still vary over
 different \baav schemas. For example, assume that
 we replace $\kb{\at{T}}_{1}$
-with $\kb{\at{T}_{1}'}\bschema{\at{date}}{(\at{payee},\ak
+with $\kb{\at{T}}_{1}'\bschema{\at{date}}{(\at{payee},\ak
   \at{cid},\ak \at{tid})}$, the %above
 scan-free query %evaluation
 plan above
 still works but retrieves much %many
 more data %values
-from $\kb{\at{T}_{1}'}$.
+from $\kb{\at{T}}_{1}'$:
+\warn{with $\kb{\at{T}}_{1}'$ it fetches \at{transaction}
+records from all \at{payee}'s on 2020-06-01, instead of only
+those from {\normalsize `Amazon'} when using $\kb{\at{T}}_{1}$.}
+%\warn{Add more details: how serious   the extra retrieval is}
 \end{example}
-\looseness = -1
+
 
 As shown in Example~\ref{exa-baav}, \baav supports {\em scan-free
 query evaluation} provided with a good \baav schema.  However,
 its performance highly depend on how the schema is designed.
-While algorithms have been developed for
+While algorithms are already in place for %have been developed for
 % checking and
 evaluating %scan-free
 queries over a \baav schema~\cite{VLDB19}, an open question is
-how to design ``the best'' \baav schema?
+how to design ``the best'' \baav schema?\looseness=-1
 
-\eetitle{Challenges}. In a nutshell, given a query load
+\eetitle{Challenges}. %In a nutshell,
+Given a query load
 $\Q$, we want to design ``the best'' \baav schema
 $\kb{\R}$ that allows us to evaluate queries in $\Q$
 with minimum time and space, \warn{by leveraging scan-free
@@ -142,8 +159,8 @@ with minimum time and space, \warn{by leveraging scan-free
 Here we consider parametric \SQL 
 queries $Q[P_Q]$, where $P_Q$ is a set of attributes
 that will be instantiated by users before execution.
-Such queries are widely used in banks, supply chains and 
-web search forms of e-commerce companies, among others.
+Such queries are widely used in banks, supply chains and
+Web search forms of e-commerce companies, among others.
 Given a
 set $\Q$ of parametric \SQL queries posed on an underlying
 database schema $\R$, we aim to design a \baav schema
@@ -162,7 +179,7 @@ the quality of a \baav schema $\kb{\R}$ for a query load $\Q$?
 How to group key and value attributes for $\kb{\R}$
 so that queries posed on underlying database of $\R$
 can be answered over \kv stores while minimizing scans and
-data retrieval, \warn{optimally leveraging the scan-free
+data retrieval, \revise{by optimally leveraging the scan-free
 evaluability over \baav stores?}
 How to reduce the space overhead of
 storing relations of $\R$ as \baav pairs 
@@ -171,20 +188,22 @@ in a \kv system?
 %of \kv stores in response to updates to the underlying
 %databases of $\R$?
 What is the complexity of this multi-criteria
-optimization problem? Is it possible at
-all to develop an efficient algorithm for schema
+optimization problem? Is it possible
+%at all
+to develop an efficient algorithm for schema
 selection or is it beyond reach in practice?
 
 
 %%%%%%%%
-\stitle{Contribution \& organization}. This paper tackles these
-questions, and gives a full treatment to the design of
+\stitle{Contribution \& organization}. This paper investigates %tackles
+these questions, and gives a full treatment to the design of
 \baav schemas for parametric \SQL queries over \kv-stores.
 
 \eetitle{(1) A framework} (Section~\ref{sec-schema}). We propose a
-framework to speed up parametric \SQL queries via \baav stores.
+framework to speed up parametric \SQL queries on top of \baav stores.
 Underlying the framework is a module for selecting a \baav schema
-and answering queries over the \baav database. We also introduce
+and answering queries over the \baav database. %We also
+Moreover, we introduce
 a normal form of \baav schemas for parametric \SQL queries.
 
 \eetitle{(2) Ranking \baav database schemas} (Section~\ref{sec-rank}).
@@ -194,45 +213,56 @@ we formulate the \baav schema selection problem.
 We show that the problem is \NP-complete and remains \NP-hard
 even for a single join query without self-joins.\looseness=-1
 
-\eetitle{(3) Selecting optimal schemas} (Section~\ref{sec-select}). 
+\eetitle{(3) Selecting optimal schemas} (Section~\ref{sec-select}).
 We develop a method to select the best \baav  schema 
 from any given set $\kb{\A}$ of \baav relation schemas, by reducing it to 
 integer linear programming (ILP). Expressing all the ranking
-criteria in ILP, it computes an optimal \baav
-schema by using existing efficient ILP solvers,
-ensuring the scan-free evaluability in particular.
+criteria in ILP, the method computes an optimal \baav
+schema by using existing efficient ILP solvers, and
+ensures the scan-free evaluability in particular.
 %\looseness = -1
 
 \eetitle{(4) Computing schema cover} (Section~\ref{sec-cover}).
-We also develop an algorithm that can efficiently construct a
+As part of the input of the method proposed in (3) above,
+we %also
+develop an algorithm that can efficiently construct a
 set $\kb{\A}$ of \baav relation schemas, in polynomial
-size, for a parametric query workload $\Q$ as part of the input
-of the method in (3) above. It guarantees that for each $Q\in \Q$, under
+size, for a parametric query workload $\Q$.
+%as part of the input of the method in (3) above.
+It guarantees that for each $Q\in \Q$, under
 any ranking function $f$, the optimal \baav schema
 normalized for $Q$ is subsumed in $\kb{\A}$.
-\looseness = -1
+%\looseness = -1
 
 Taken together, (3) and (4) provide a practical
   algorithm for schema selection that guarantees certain optimality.
   
 
 \eetitle{(5) Experimental study} (Section~\ref{sec-expt}). 
-Using standard benchmarks, we evaluate the effectiveness
+Using \warn{\tpch~\cite{tpch} and \imdb~\cite{LeisGMBK015} benchmarks}, we
+evaluate the effectiveness
 of \baav schema deduced %by our algorithms
 and the efficiency of
 our schema selection algorithms.
-%We find the following.
-(a) With SparkSQL-over-Cassandra, on average \tpch and \tpcds
-queries can be made 4.28 and 7.01 times faster, respectively, over
-\baav schemas that are computed by our algorithms,
-than over schemas generated by the baselines. Moreover, the gaps
-increase when the queries have more joins or the datasets grow bigger.
+We find the following.
+(a) Scan-free evaluation does work well with \baav schemas found
+by our algorithms. With SparkSQL-over-Cassandra (\soc), on average \warn{\tpch and
+  \imdb built-in benchmark queries} can be made \xx and \xx
+times faster, respectively, over \baav schemas
+are computed by our algorithms than over the conventional
+tuple-as-a-value schemas.
+(b) \warn{Our algorithms are effective.
+Over \tpch and \imdb,  \soc is 4.28 and \xx times
+faster with \baav schemas generated by our algorithms than with
+those generated by the baselines, respectively.}
+Moreover, the gaps increase when the queries have more joins or the datasets grow bigger.
 % than relations stored under
 % the conventional tuple-as-a-value model.
 (b) Our algorithms are able to select
-the optimal normalized \baav schema for \tpch and \tpcds
+the optimal normalized \baav schema for \warn{\tpch and \imdb}
 queries within 0.42 and 0.27 seconds, respectively.
 
+\revise{Revise after new experiments. New benchmarks of \SQL?}
 
 \vspace{0.6ex}
 \warn{All formal details and proofs can be found in the full
@@ -285,18 +315,18 @@ block-as-a-value model.
 
 \warn{
 \eetitle{Index and view selection}.
-Modern \kv systems can also use secondary and covering
+Modern \kv systems can also use %secondary and covering
 indices to speed up get operations over non-key
 attributes (see \eg~\cite{ChrysafisCDDEGG19}).
-To avoid scanning the entire table for $\get(k)$ operations with
-$k$ on some non-key attributes $X$ of relation $R$ in \kv
-stores, one can build an index on $X$, which conceptually is a
-tuple-as-a-value relation with $X$ padded with tuple
-identifiers of $R$ as a compound key~\cite{QaderCH18}.  While it
-shares similar spirit and objectives of \baav schemas,  index
-assisted \get operations still incur scans over the ``index
-table'' as $k$ is not unique in keys. As discussed in
-\cite{VLDB19}, \baav complements to the indexing
+Consider relation $R$ in \kv stores and
+$\get(k)$ operations with $k$ on some non-key attributes $X$ of
+$R$. To avoid scanning the entire $R$,  one can build an index
+on attributes $X$, which conceptually is a tuple-as-a-value relation with
+$X$ padded with tuple identifiers of $R$ as a compound
+key~\cite{QaderCH18}.  While it shares similar spirit and
+objectives of \baav schemas,  \get operations with such an index
+still incur scans over the ``index table'' as $k$ is not unique
+in keys. As discussed in \cite{VLDB19}, \baav complements to the indexing
 approach and one can combine the two by building indices over
 \baav relations as well.
 
@@ -361,8 +391,7 @@ formalize scale independent query evaluation under access
 constraints, which are, to some extent, a restricted form of the
 \baav schema with cardinality constraints. %(cf.~\cite{VLDB19}).
 Indeed, the techniques of bounded evaluation can be adopted to answer
-queries over \baav databases as observed by \cite{VLDB19}.
-
+queries over \baav databases as observed by \cite{VLDB19}.\looseness=-1
 
 This work differs from bounded evaluation in that we focuses on
 the selection and design of \baav schemas, while bounded

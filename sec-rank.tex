@@ -18,19 +18,18 @@ and $\kb{\at{T}}_{1}'$ from Example~\ref{exa-baav}; $Q_{1}$ is
 scan-free over both $\kb{\at{T}}_{1}$ and $\kb{\at{T}}_{1}'$
 while its scan-free plan over $\kb{\at{T}}_{1}$ is superior than
 that over $\kb{\at{T}}_{1}'$ since it fetches fewer attributes
-and hence accesses fewer values. Moreover, making all queries
+and accesses fewer values. Moreover, making all queries
 scan-free evaluable may not always be possible unless we use
-\bss with small or even empty key attribute sets and large value
-attribute sets, which basically fall back to table scans as the
-conventional tuple-as-a-value model does.}
+\bss with small or even ``empty'' key attribute sets (\ie
+identifiers) and large value attribute sets, which basically
+falls back to the conventional tuple-as-a-value model.}
 
 
 \vspace{0.6ex}
 \warn{This motivates us to consider the {\em degrees} of \bss
-below to further measure the quality of \bdss,
- % in addition to scan-free evaluability,
-to distinguish good \bdss from bad ones although over both
-queries can be scan-free.}
+below to further measure the quality of \bdss
+to distinguish good \bdss from bad ones, although both of
+which can make queries scan-free.}
 
 
 \warn{\stitle{Degree}.
@@ -50,7 +49,7 @@ fewer \at{transaction} values than over $\kb{\at{T}}'_{1}$.}
 \warn{Note that scan-free evaluability and \bs degrees are measures
 unique to the \baav model, and have not been used in the
 conventional database design or index and view selection.
-They have to work together to measure the performance of query
+They have to work together to assess the performance of query
 evaluation over the selected \bdss. This however is not easy as
 shown below.}
 
@@ -61,7 +60,7 @@ tend to minimize the key attributes in the \bss (\ie $X$ in \bs
 $\bschema{X}{Y}$) of $\kb{\R}$.  Since $\kb{\R}$ is in normal
 form for $\Q$, the degree of $\kb{\R}$ would increase if we
 reduce key attributes.  Indeed, optimizing both criteria is
-already intractable, as shown below.}
+already intractable, as shown below.}\looseness = -1
 
 \begin{lemma}\label{lem-criteria}
 \warn{Given a self-join free \SPC query $Q$ over database schema $\R$
@@ -133,8 +132,9 @@ is, the smaller the \baav databases of $\kb{\R}$.}
 
 \warn{\stitle{Remark}. (1) We acknowledge that there are many
 other conventional criteria for ranking indices and views that can
-also be applied to measure \bdss, such as the database size and
-incremental maintenance cost. However, to focus more on the new
+also be applied to assess \bdss, % the database size and
+\eg incremental maintenance cost and update anomaly.
+However, to focus more on the new
 challenges incited by the \baav model (\ie scan-free
 evaluability and degrees), we only adopted the size of \baav
 databases in $f(\Q, \kb{\R})$, measured by $\size(\kb{\R})$ at

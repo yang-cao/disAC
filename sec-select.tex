@@ -149,7 +149,10 @@ normalized \bds from $\kb{\A}$ for K-FK join \SPC queries
 \warn{To simplify the presentation of the two ILP programs, we assume
 that $\Q$ consists of \SPC queries. For generic \RA (\SQL)
 queries, \opts represents them with their max-\SPC sub-queries
-in $\Q$ beforehand.}
+in $\Q$ beforehand and then selects schemas in the same way.
+Here a sub-query $Q_{s}$ of \RA query $Q$ is a max-\SPC
+sub-query of $Q$ if it is an \SPC and for any other max-\SPC
+sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of $Q_{s}'$.}
 
 
 \vspace{0.8ex}
