@@ -9,6 +9,75 @@ We next develop an algorithm to construct a universe set
 $\kb{\A}$ of \bss for $\Q$, as part of the input for algorithm
 \opts above. %in Section~\ref{sec-select}.
 
+
+
+
+
+\begin{myfloat}[t]
+\vspace{1.2ex}
+\begin{minipage}{0.50\textwidth}
+  \removelatexerror
+%%%%%%%%%%%%%%%%%%%%% Algorithm: USC
+{\scriptsize
+\setlength{\floatsep}{0cm} % set blank space above the figure
+\setlength{\textfloatsep}{-2cm}% set blank space below the figure
+\IncMargin{1em}
+\vspace{-0.7ex}
+\begin{algorithm}[H]
+\setstretch{1.1}
+%\SetAlgoNoLine
+\Indentp{-2ex}
+%\DontPrintSemicolon
+%\SetAlgoLined
+\KwIn{A database schema $\R$ and a workload $\Q$ over $\R$.}
+\KwOut{A set $\kb{\A}$ of \bss for $\Q$.}
+\Indentp{1em}
+\BlankLine
+\ForEach{$Q\in \Q$\label{usc-l1}}{$\kb{\A}_{Q} \la
+  \{\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}), \kb{R}^{2}_{Q} =
+  \bschema{P_{Q}Y_{Q}}{\emptyset})\}$\;\label{usc-l2}
+  \ForEach{$\Sigma\subseteq \Sigma_{Q}$ consisting no more than
+    2 relations\label{usc-l3}}{
+    \tcc{$\Sigma_{Q}$: the set of relation atoms appeared in $Q$}
+   % \tcc{relations in $\Sigma$ can be K-FK joined into a universal relation $R_{\Sigma}$}
+    $\kb{\A}' \la \decompose(\Sigma_{Q}\setminus \Sigma \cup
+    \{R_{\Sigma}\}, Q)$\label{usc-l4}\;
+    $\kb{\A}_{Q} \la \kb{\A}_{Q}\cup \kb{\A}'$\label{usc-l5}\;
+  }
+}
+$\kb{\A} \la \bigcup_{Q\in \Q} \kb{\A}_{Q}$\label{usc-l6}\;
+\Return $\kb{\A}$\label{usc-l7}\;
+
+
+\nonl\SetKwFunction{proc}{\pdecompose}
+\nonl\SetKwProg{myproc}{Procedure}{}{}
+\vspace{0.3cm}
+\nonl\SetKwFunction{pdecompose}{\decompose}
+% \setcounter{AlgoLine}{0}
+\nonl \myproc{\pdecompose{$\R_{Q}, Q$}}{
+  $\kb{\A} \la \emptyset$\;\label{usc-l8}
+  \While{$\R_{Q}\neq \emptyset$}{
+    \tcc{$\atset(R)$ (resp. $\atset(\kb{\A})$): the set of
+      attributes in $R$ (resp. $\kb{\A}$)}
+    $R \la \argmax_{R\in \R_{Q}}|\atset(R)\cap (P_{Q}\cup
+    \atset(\kb{\A}))|$\;
+    $X_{R}\la \atset(R)\cap (P_{Q}\cup \atset(\kb{\A}))$\;
+    $Y_{R}\la \atset(R)\cap (Y_{Q}\cup \atset(\kb{\A}))$\;
+    add \bs $\bschema{X_{R}}{Y_{R}}$ to $\kb{\A}$\;
+    remove $R$ from $\R_{Q}$\;
+  }
+  \Return $\kb{\A}$;\label{usc-l15}
+}
+\caption{Algorithm \usc\label{alg-usc}}
+\end{algorithm}
+\DecMargin{1em}
+}
+%%%%%%%%%%%%%%%%%%%%%
+\end{minipage}
+\vspace{-2.4ex}
+\end{myfloat}
+
+
 \stitle{Algorithm}. The algorithm, denoted by \usc, takes as input a workload $\Q$
 over a database schema $\R$, and returns a set $\kb{\A}$ of \bss
 for $\Q$.
@@ -178,69 +247,7 @@ $O(\frac{\cd{\Q}(\kappa+1)(\kappa+2)}{2})$-time, which is bounded
 by $O(\kappa^{2}\cd{\Q})$.
 
 
-\begin{myfloat}[t]
-\vspace{1.2ex}
-\begin{minipage}{0.50\textwidth}
-  \removelatexerror
-%%%%%%%%%%%%%%%%%%%%% Algorithm: USC
-{\scriptsize
-\setlength{\floatsep}{0cm} % set blank space above the figure
-\setlength{\textfloatsep}{-2cm}% set blank space below the figure
-\IncMargin{1em}
-\vspace{-0.7ex}
-\begin{algorithm}[H]
-\setstretch{1.1}
-%\SetAlgoNoLine
-\Indentp{-2ex}
-%\DontPrintSemicolon
-%\SetAlgoLined
-\KwIn{A database schema $\R$ and a workload $\Q$ over $\R$.}
-\KwOut{A set $\kb{\A}$ of \bss for $\Q$.}
-\Indentp{1em}
-\BlankLine
-\ForEach{$Q\in \Q$\label{usc-l1}}{$\kb{\A}_{Q} \la
-  \{\kb{R}_{Q}^{1} = \bschema{P_{Q}}{Y_{Q}}), \kb{R}^{2}_{Q} =
-  \bschema{P_{Q}Y_{Q}}{\emptyset})\}$\;\label{usc-l2}
-  \ForEach{$\Sigma\subseteq \Sigma_{Q}$ consisting no more than
-    2 relations\label{usc-l3}}{
-    \tcc{$\Sigma_{Q}$: the set of relation atoms appeared in $Q$}
-   % \tcc{relations in $\Sigma$ can be K-FK joined into a universal relation $R_{\Sigma}$}
-    $\kb{\A}' \la \decompose(\Sigma_{Q}\setminus \Sigma \cup
-    \{R_{\Sigma}\}, Q)$\label{usc-l4}\;
-    $\kb{\A}_{Q} \la \kb{\A}_{Q}\cup \kb{\A}'$\label{usc-l5}\;
-  }
-}
-$\kb{\A} \la \bigcup_{Q\in \Q} \kb{\A}_{Q}$\label{usc-l6}\;
-\Return $\kb{\A}$\label{usc-l7}\;
 
-
-\nonl\SetKwFunction{proc}{\pdecompose}
-\nonl\SetKwProg{myproc}{Procedure}{}{}
-\vspace{0.3cm}
-\nonl\SetKwFunction{pdecompose}{\decompose}
-% \setcounter{AlgoLine}{0}
-\nonl \myproc{\pdecompose{$\R_{Q}, Q$}}{
-  $\kb{\A} \la \emptyset$\;\label{usc-l8}
-  \While{$\R_{Q}\neq \emptyset$}{
-    \tcc{$\atset(R)$ (resp. $\atset(\kb{\A})$): the set of
-      attributes in $R$ (resp. $\kb{\A}$)}
-    $R \la \argmax_{R\in \R_{Q}}|\atset(R)\cap (P_{Q}\cup
-    \atset(\kb{\A}))|$\;
-    $X_{R}\la \atset(R)\cap (P_{Q}\cup \atset(\kb{\A}))$\;
-    $Y_{R}\la \atset(R)\cap (Y_{Q}\cup \atset(\kb{\A}))$\;
-    add \bs $\bschema{X_{R}}{Y_{R}}$ to $\kb{\A}$\;
-    remove $R$ from $\R_{Q}$\;
-  }
-  \Return $\kb{\A}$;\label{usc-l15}
-}
-\caption{Algorithm \usc\label{alg-usc}} 
-\end{algorithm}
-\DecMargin{1em}
-}
-%%%%%%%%%%%%%%%%%%%%%
-\end{minipage}
-\vspace{-2.4ex}
-\end{myfloat}
 
 \eetitle{Remark}.
 Note that step (3) of \usc only generates \bss over a single
