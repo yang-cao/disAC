@@ -30,7 +30,7 @@ Section~\ref{sec-cover}.
 \stitle{Algorithm}.
 The main driver of the algorithm, denoted by \opts,
 is shown as
-Algorithm~\ref{alg-opts}. It takes as input a workload $\Q$ over
+Algorithm~\ref{alg-opts}. It takes as input a query load $\Q$ over
 database schema $\R$, a set $\kb{\A}$ of \bss and an aggregate rank
 function $f(\Q,\ak \kb{\R})$.
 It \revise{deduces} %computes
@@ -131,7 +131,7 @@ sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of $Q_{s}'$.
 \warn{Justify why considering max-\SPC suffices for \SQL}
 
 \vspace{0.8ex}
-Below we present the two ILP programs and the identification
+Below we first present the two ILP programs and the identification
 of acyclic queries. We then give a proof
 of Theorem~\ref{thm-opts}.
 
@@ -210,9 +210,11 @@ in joins or project predicates of $Q$).
 \looseness = -1
 
 \vspace{0.36ex}
-For each $Q$ in $\Q$ and each relation atom $R$ in $Q$, denote by
-$W_{R}$ the \qcs~\cite{blinkdb} of $Q$ on $R$ (\ie attributes of
-$R$ that are also in $P_{Q}Y_{Q}$ of $Q$); denote by $\Wc_{\Q}$
+For each query $Q$ in %workload
+$\Q$ and each relation atom $R$ in $Q$, denote by
+$W_{R}$ the \qcs (\revise{Query Column Set})~\cite{blinkdb} of $Q$ on $R$, \ie
+attributes of
+$R$ that are also in $P_{Q}Y_{Q}$ of $Q$; denote by $\Wc_{\Q}$
 the set of all \qcs of queries in $\Q$. For each \qcs $W$ in
 $\Wc_{\Q}$, denote by $\kb{\R}_{W}$ the set of \bss $\kb{R}\ak
 =\ak \bschema{X}{Y}$ in $\kb{\A}$ that {\em support} $W$, \ie
@@ -264,7 +266,7 @@ Then program ILP-(I) is constructed as follows.
 where $c_{i} (i\in[1, 3])$  in (1) are coefficients adjustable
 by the users when specifying the
 optimization objective,  $\sum_{i=1}^{3}c_{i} = 1$ (recall
-from Section~\ref{sec-rank}), and $f_{i}(i\in [1, 3])$ are:
+from Section~\ref{sec-rank}), and $f_{i}(i\in [1, 3])$ are defined as
   $f_{1} = \textstyle\sum_{Q\in \Q} (1-z_{Q})$,
   $f_{2} = \textstyle\sum_{\kb{R}\in \kb{\A}} y_{\kb{R}}*|Y_{\kb{R}}|$,
   and
@@ -292,17 +294,19 @@ in $Y_{\kb{R}}$ of some \bs $\kb{R}$ ($\kb{R} \in \RHS(A))$
 that has been picked for $Q$, \ie $y_{\kb{R}}^{Q} = 1$.
 
 Inequation (5) further enforces that attribute $A$ in $X_{\kb{R}}$
-of $\kb{R}$ in $Q$ must be fetchable if $\kb{R}$ is picked for $Q$.
+of $\kb{R}$ in $Q$ must be fetchable as long as %if
+$\kb{R}$ is picked for $Q$.
 
 \vspace{0.6ex}
 Inequation (6) is to ensure that for each relation $R$ in $\R$,
 only one \bs $\kb{R} \ak =\ak \bschema{X}{Y}$ with $Y$ from $R$ is used
-to make $Q$ scan-free; this is to ensure that when all $Y_{Q}$ attributes
+to make $Q$ scan-free.
+\revise{Intuitively}, this is to ensure that when all $Y_{Q}$ attributes
 can be fetched from $P_{Q}$-values, they are warranted to come from
 the same tuples in the database instance $\D$ of $\R$, \ie their
 combinations do not generate ``false'' $Y_{Q}$-values that are
 not in $\D$.
-\looseness = -1
+%\looseness = -1
 
 \vspace{0.8ex}
 When taken together,
@@ -321,8 +325,9 @@ Inequation (7) ensures that when $Q$ picks a \bs $\kb{R}$
 %
 Inequation (8) is to guarantee that any feasible solution to the
 ILP program must yield a \bds that is in the normal form for all
-queries in $\Q$: for each \qcs $W$ of $\Q$, $W$ is supported by
-at least a \bs picked in $\kb{\R}$.\looseness=-1
+queries in $\Q$; \revise{that is},
+for each \qcs $W$ of $\Q$, $W$ is supported by
+at least a \bs picked in $\kb{\R}$.%\looseness=-1
 
 \vspace{0.6ex}
 Equations (9)-(10) claim that all variables are either 0 or 1.
@@ -337,35 +342,45 @@ It then interprets \bdss from solutions to the ILP
 program: for any feasible solution (\ie 0/1 assignment to the
 variables), it construct \bds $\kb{\R}$ that consists of \bss
 $\kb{R}$ in $\kb{\A}$ with $y_{\kb{R}}  = 1$ in the feasible
-solution. We refer to such $\kb{\R}$ {\em the \bds encoded by the
+solution.
+
+We refer to such $\kb{\R}$ \revise{as}
+{\em the \bds encoded by the
 solution to ILP program}. \opts returns the \bds
 $\kb{\R}_{o}$ encoded by the optimal solution to ILP-(I) only
-when $\Q$ is acyclic \wrt $\kb{\R}_{o}$ (line~\ref{opts-l2}), which we elaborate below. 
+when $\Q$ is acyclic \wrt $\kb{\R}_{o}$ (line~\ref{opts-l2}).
+%which we elaborate below. 
 
 
 \begin{example}\label{exa-ILP-I}
 Continuing with Example~\ref{exa-measures},
-let the universe set $\kb{\A}$ be $\kb{\R}_{2}$.
+let the universe set $\kb{\A}$ be \revise{the set $\kb{\R}_{2}$ of \bds}.
 By constructing and solving the ILP-(I) with $\kb{\R}_{2}$ and $\Q$,
 one can verify that the optimal assignment to ILP-(I) has
 $z_{Q_{1}} = 1$, $y_{\kb{\at{T}}_{1}} = y_{\kb{\at{C}}_{1}} =
 y_{\kb{\at{B}}_{1}} = 1$ and $y_{\kb{R}} = 0$ for all other
-$\kb{R}$ in $\kb{\R}_{2}$, with the objective of ILP-(I) scored $0.1$, which
+$\kb{R}$ in $\kb{\R}_{2}$, where
+the objective of ILP-(I) has score $0.1$. \revise{Note that this} %, which
 exactly matches $f_{0}(\Q, \kb{\R}_{1})$ calculated in Example~\ref{exa-measures}.
-Note that the encoded \bds by this assignment is also exactly
-$\kb{\R}_{1}$. This shows that ILP-(I) correctly computes the
+Moreover, %Note that
+the encoded \bds by this assignment is also exactly
+$\kb{\R}_{1}$. This demonstrates %shows
+that ILP-(I) correctly computes the
 score of $\kb{\R}_{1}$ for $\Q$ and identifies it as the optimal
-\bds within $\kb{\R}_{2}$ for $\Q$ under $f_{0}$. 
+\bds within $\kb{\R}_{2}$ for $\Q$ under function $f_{0}$. 
 \end{example}
 \looseness = -1
 
 
-\stitle{(2) Acyclicity checking}. Below we
-first exemplify the notion
+\stitle{(2) Acyclicity checking}. Below we \revise{first
+use an example to illustrate}
+%first exemplify
+the notion
 of acyclicity of a query $Q$ \wrt the \bds $\kb{\R}_{o}$ encoded
-in the optimal solution to ILP-(I). Let $\kb{\R}_{Q}$ be the set
+in the optimal solution to ILP-(I). \revise{More specifically}, 
+let $\kb{\R}_{Q}$ be the set
 of \bss $\kb{R}$ in $\kb{\R}_{o}$ with $y_{\kb{R}}^{Q} = 1$ in
-the solution to ILP-(I).
+the solution to ILP-(I). %Consider the following.
 
 
 \begin{example}\label{exa-acyclicity}
@@ -409,15 +424,17 @@ $\kb{\R}_{4}$ for $Q_{1}$ when it is cyclic.
 \end{example}
 \looseness = -1
 
-As shown in Example~\ref{exa-acyclicity}, if $\kb{\R}_{Q}$ is
-``cyclic'', attribute $A$ in $Y_{Q}$ of $Q$ cannot always be
+As shown in Example~\ref{exa-acyclicity}, if \bs $\kb{\R}_{Q}$ is
+``cyclic'', \revise{then} attribute $A$ in $Y_{Q}$ of $Q$ cannot always be
 fetched from parameters $P_{Q}$ of $Q$ even when $x_{A}^{Q} = 1$,
 where $\kb{\R}_{Q}$ consists of all \bss $\kb{R}$ in $\kb{\R}_{o}$
 with $y_{\kb{R}}^{Q} = 1$ in the solution to ILP-(I) (\ie
 $\kb{\R}_{4}$ for $Q_{1}$ with $\kb{\A} = \kb{\R}_{2}$).
 In other words, ILP-(I) alone cannot capture the scan-free
-evaluability of $\kb{\R}_{Q}$ and hence it may not be optimal anymore. 
-\looseness = -1
+evaluability of $\kb{\R}_{Q}$ and hence it may \revise{no longer be
+optimal}. 
+%not be optimal anymore. 
+%\looseness = -1
 
 %\warn{Do you mean ``cyclic'' instead above? Not very logical}
 
@@ -425,14 +442,16 @@ We next formalize the acyclicity of \bds $\kb{\R}_{Q}$ for $Q$.
 % As will be shown shortly, if $\A_{Q}$ in $\A$ identified
 % by the ILP program is acyclic for each $Q$ in $\Q$, \opts safely
 % returns $\A$ as the optimal \cds for $\Q$.
-This is based on a graph representation of $\kb{\R}_{Q}$, referred to
+This \revise{notion} 
+is based on a graph representation of $\kb{\R}_{Q}$, referred to
 as the {\em schema graph} of $\kb{\R}_{Q}$ and denoted by
-$G_{\kb{\R}_{Q}}$.
+$G_{\kb{\R}_{Q}}$, \revise{presented as follows}.
 
 
 \eetitle{Schema graph}. More specifically, $G_{\kb{\R}_{Q}}$ is a
 directed graph constructed from $\kb{\R}_{Q}$ as follows: each \bs
-$\kb{R} = (X\ra Y)$ is represented in $G_{\kb{\R}_{Q}}$ as $|X|+|Y|+1$
+$\kb{R} = (X\ra Y)$ is represented in $G_{\kb{\R}_{Q}}$ \revise{in terms of} %as
+$|X|+|Y|+1$
 nodes and $|X|+|Y|$ edges:
 \looseness = -1
 \mbi
@@ -441,26 +460,32 @@ nodes and $|X|+|Y|$ edges:
 \item $(u_{A}, u_{Y})$ is an edge in $G_{\kb{\R}_{Q}}$ for each $A\in X$; and
 \item $(u_{Y}, u_{A})$ is an edge in $G_{\kb{\R}_{Q}}$ for each attribute $A\in Y$.
 \mei 
+\vspace{-0.7ex}
 
 \begin{figure}
+%\vspace{-0.4ex}
 \includegraphics[width=1\columnwidth]{fig/schemagraph.pdf}
+\vspace{-2.7ex}
 \caption{The schema graph of $\kb{\R}_{Q_{1}}$ (\ie
   $\kb{\R}_{4}$) \label{fig-schemagraph}}
-\vspace{-2ex}
+\vspace{-2.7ex}
 \end{figure}
 
 \begin{example}\label{exa-schemagraph}
-The schema graph of $\kb{\R}_{Q_{1}}$ (\ie $\kb{\R}_{4}$) for
-$Q_{1}$ with $\kb{\A} = \kb{\R}_{2}$ is depicted in
+\revise{When $\kb{\A} = \kb{\R}_{2}$, the  schema graph of \bs $\kb{\R}_{Q_{1}}$
+(\ie $\kb{\R}_{4}$) for query $Q_{1}$} is depicted in
 Fig.~\ref{fig-schemagraph}. The graph is cyclic.
+%The schema graph of \bs $\kb{\R}_{Q_{1}}$ (\ie $\kb{\R}_{4}$) for
+%$Q_{1}$ with the set $\kb{\A} = \kb{\R}_{2}$ is depicted in
+%Fig.~\ref{fig-schemagraph}. The graph is cyclic.
 \end{example}
 
 
-\eetitle{Acyclicity}.
-We say that $\kb{\R}_{Q}$ is {\em acyclic \wrt $\kb{\R}_{o}$} if schema
+\eetitle{Acyclicity}. We now formalize acyclicity.
+We say that $\kb{\R}_{Q}$ is {\em acyclic \wrt $\kb{\R}_{o}$} if its schema
 graph $G_{\kb{\R}_{Q}}$ is acyclic; otherwise $\kb{\R}_{Q}$ is
 {\em cyclic}. Query $Q$ is {\em acyclic} \wrt $\kb{\R}_{o}$ if
-$\kb{\R}_{Q}$ is acyclic \wrt $\kb{\R}_{o}$. A workload $\Q$ is
+$\kb{\R}_{Q}$ is acyclic \wrt $\kb{\R}_{o}$. A query load $\Q$ is
 {\em acyclic} \wrt $\kb{\R}_{o}$ if each query in $\Q$ is acyclic \wrt
 $\kb{\R}_{o}$.
 
@@ -468,10 +493,13 @@ $\kb{\R}_{o}$.
 \vspace{0.8ex}
 Algorithm \opts checks whether $\Q$ is acyclic \wrt the optimal
 solution $\kb{\R}_{o}$ to ILP-(I), and returns $\kb{\R}_{o}$ 
-if $\Q$ is acyclic (line~\ref{opts-l2}). However, if $\Q$ is
+if $\Q$ is acyclic (line~\ref{opts-l2}). %However,
+
+If $\Q$ is
 cyclic, $\kb{\R}_{o}$ may not be optimal since the ILP-(I) cannot
-capture the scan-free evaluability of $\kb{\R}_{o}$;
-for such cases, \opts further triggers ILP-(II) below.
+capture the scan-free evaluability of $\kb{\R}_{o}$. \revise{If so,
+%for such cases, \opts %further
+\opts triggers ILP-(II)}. %below.
 
 
 \vspace{0.36ex}
@@ -493,14 +521,15 @@ of ILP-(I):\looseness=-1
 Intuitively, equation (11) allows ILP-(II) to enforce that when
 selecting \bss to make query $Q$ scan-free, for each
 \bs $\kb{R} \ak = \ak \bschema{X}{Y}$ it picks for $Q$, $X\subseteq
-P_{Q}$, \ie $Q$ can be answered with $\get(k)$ operations where
-$k$'s are the parameters of $Q$.
+P_{Q}$, \ie $Q$ can be answered with $\get(k)$ operations where keys 
+$k$ are \revise{among} the parameters of $Q$.
 %\looseness = -1
 
 
 \vspace{0.36ex}
-When $\Q$ is cyclic \wrt the \bds $\kb{\R}_{o}$ encoded by the
-optimal solution to ILP-(I), algorithm \opts constructs and solves
+When $\Q$ is cyclic \wrt the \bds $\kb{\R}_{o}$,
+%encoded by the optimal solution to ILP-(I),
+algorithm \opts constructs and solves
 ILP-(II), and returns the \bds $\kb{\R}_{o}'$ encoded by the
 optimal solution to ILP-(II), \ie $\kb{\R}_{o}'$ consists of \bss
 $\kb{R}$ in $\kb{\A}$ with $y_{\kb{R}} = 1$. 
@@ -512,8 +541,11 @@ $y_{\kb{\at{TC}}_{1}} = y_{\kb{\at{B}}_{1}} = 1$ and
 $y_{\kb{\at{B}}_{2}} = y_{\kb{\at{C}}_{1}} = 0$. %, which
 This encodes a
 \bds $\kb{\R}_{5}$ consisting of $\kb{\at{B}}_{1}$ and
-$\kb{\at{TC}}_{1}$ for query load $\Q$. Note that the objective of ILP-(II)
-with this assignment is 1.06, which is consistent with $f_{0}(\Q,
+$\kb{\at{TC}}_{1}$ for query load $\Q$. %With this, assignment,
+%Note that
+The objective of ILP-(II) %with this assignment
+is 1.06, which is
+consistent with $f_{0}(\Q,
 \kb{\R}_{5})$. 
 \end{example}
 
@@ -524,23 +556,28 @@ with this assignment is 1.06, which is consistent with $f_{0}(\Q,
 
 
 \begin{lemma}\label{lem-ILP-norm}
-  For any \SQL $Q$, if for each \qcs $W$ in $\Wc_{Q}$ there
+  For any \SQL $Q$, if for each \qcs $W$ in $\Wc_{Q}$, there
   exists a \bs $\kb{R}$ in $\kb{\R}$ that supports $W$, then
   $\kb{\R}$ is in the normal form for $Q$.
 \end{lemma}
 \looseness = -1
 
+\revise{The proof of}
 Lemma~\ref{lem-ILP-norm} is straightforward from the following observations:
 (a) a query $Q$ can be answered if all of its \qcs values can be
 retrieved; moreover,
 (b) if a \qcs $W$ is supported by a \bs $\kb{R}$, then by scanning
 $\kb{R}$ one could retrieve all the $W$-values. 
 
-Note that the condition of Lemma~\ref{lem-ILP-norm} is enforced
+%Note that
+The condition of Lemma~\ref{lem-ILP-norm} is enforced
 by inequation (8) for each query $Q$ in $\Q$.
 Hence, by Lemma~\ref{lem-ILP-norm}, any feasible solution to ILP-(I)
-or ILP-(II) must encode a \bds that is in the normal form for $\Q$.
-This verifies Theorem~\ref{thm-opts}(1). 
+or ILP-(II) %must
+encodes a \bds %that is
+in the normal form for $\Q$
+%This verifies
+(Theorem~\ref{thm-opts}(1)). 
 
 
 \vspace{1ex}
@@ -551,7 +588,19 @@ we have the following.
 \vspace{-0.5ex}
 \begin{lemma}\label{lem-ILP}
   For any K-FK join \SPC query $Q$ in $\Q$, 
-
+\mbi
+\item[(1)] $Q$ is scan-free over some \bds $\kb{\R}$
+only if there exists a feasible
+  solution to ILP-(I) with $z_{Q} = 1$;
+\item[(2)] $Q$ is scan-free evaluable over $\kb{\R}$
+  if there is a \bds $\kb{\R}$ encoded by a feasible
+  solution to ILP-(I) with $z_{Q} = 1$ and $Q$ is acyclic \wrt
+  $\kb{\R}$; %and
+\item[(3)] $Q$ is strongly scan-free evaluable iff there exist a
+  feasible solution to ILP-(II) with $z_{Q} = 1$.
+\mei
+\vspace{-3ex}
+\eat{%EAT
   \sstab (1) $Q$ is scan-free over some \bds $\kb{\R}$ only if there exists a feasible
   solution to ILP-(I) with $z_{Q} = 1$; 
 
@@ -561,11 +610,16 @@ we have the following.
   $\kb{\R}$; and
 
   \sstab (3) $Q$ is strongly scan-free evaluable iff there exist a
-  feasible solution to ILP-(II) with $z_{Q} = 1$. 
+  feasible solution to ILP-(II) with $z_{Q} = 1$.
+  }%EAT
 \end{lemma}
 
 \vspace{-0.7ex}
 
+\warn{Clarify the difference between (1) and (2). 
+Isn't scan-free and scan-free evaluable the same (Section~2)?
+Don't expect the reader to remember the subtle notions
+at this point}
 
 \begin{proofS}
 % All three results can be proved by induction on $(m, n, p)$,
@@ -574,12 +628,16 @@ we have the following.
 % $y_{\kb{R}}$ variables, \ie the number of \bss in $\kb{\R}$.
 %In particular, to prove (1), the key observation for the
 %induction is the following:
-All the three results can be proved by induction. 
+%All
+The three results can all be proved by induction. 
 %In particular,
-To prove (1), observe that when $Q$ is scan-free
+%To prove
+For (1), observe that when $Q$ is scan-free
 over some \bds $\kb{\R}$, by definition there must exist a chain
 (\ie plan)
-of \get operations that can retrieve $A$ from parameters of $Q$
+of \get operations that %can
+retrieve \revise{attribute}
+$A$ from parameters of $Q$
 for each $A\in Y_{Q}$. One can verify by induction on the length
 of the chain that each chain encodes a partial assignment to the
 0/1-variables that satisfies the constraints of ILP-(I) and leads to
@@ -587,7 +645,7 @@ $x_{A}^{Q} = 1$ for each $A\in Y_{Q}$. By inequation (3), such
 partial assignments, together with $z_{Q} = 1$, form a feasible
 solution (\ie assignment) that satisfies all the constraints
 in ILP-(I).
-%
+
 One can verify
 (2) along the same lines. By induction on $(m, n)$,
 where $m$ is the number of $x_{A}^{Q}$ variables and $n$ is the
@@ -603,6 +661,7 @@ of (2) (resp.~(1)), and is simpler.
 \end{proofS}
 \looseness = -1
 
+\eat{%EAT DOES MORE HARM THAN GOOD
 Lemma~\ref{lem-ILP} considers \SPC queries with K-FK joins 
 since all the analysis is based on that $Q$ is
 (resp.~strongly) scan-free iff $\bschema{P_{Q}}{Y_{Q}}$ is
@@ -610,7 +669,7 @@ implied by $\kb{\R}$, \ie there exists a (resp.~strongly) scan-free
 plan over $\kb{\R}$ that fetches attributes in $Y_{Q}$ over
 $\kb{\R}$, starting from $P_{Q}$. Such a prerequisite holds for
 \SPC queries in which joins are all K-FK joins.
-\looseness = -1
+\looseness = -1}%EAT
 
 Putting these together, we are now ready to prove
   Theorem~\ref{thm-opts}.
@@ -682,7 +741,8 @@ for the pick queries.
 
 \sstab (3) By controlling $c_{i}$ in the rank aggregate function
 $f(\Q, \kb{\R})$, one can prioritize certain
-measures. For example, if users care more about the
+measures \revise{of their applications}. 
+For example, if users care more about the
   performance of query answering than
   %while downplaying
 the maintenance cost, \eg when querying static historical data,
@@ -750,7 +810,7 @@ $\kb{\A}$\label{opts-l1}\tcp*[r]{denote its answer by $\kb{\R}_{o}$}
 
 
 The algorithm, denoted by \opts and shown as
-Algorithm~\ref{alg-opts}, takes as input a workload $\Q$ over
+Algorithm~\ref{alg-opts}, takes as input a query load $\Q$ over
 database schema $\R$, a set $\kb{\A}$ of \bss and an aggregate rank
 function $f(\Q,\ak \kb{\R})$.
 It computes the optimal \bds $\kb{\R}$ normalized for $\Q$ from $\kb{\A}$,
@@ -1029,7 +1089,7 @@ nodes and $|X|+|Y|$ edges:
 We say that $\kb{\R}_{Q}$ is acyclic \wrt $\kb{\R}_{o}$ if schema
 graph $G_{\kb{\R}_{Q}}$ is acyclic; otherwise $\kb{\R}_{Q}$ is
 called cyclic. Query $Q$ is acyclic \wrt $\kb{\R}_{o}$ if
-$\kb{\R}_{Q}$ is acyclic \wrt $\kb{\R}_{o}$. A workload $\Q$ is
+$\kb{\R}_{Q}$ is acyclic \wrt $\kb{\R}_{o}$. A query load $\Q$ is
 acyclic \wrt $\kb{\R}_{o}$ if each query in $\Q$ is acyclic \wrt
 $\kb{\R}_{o}$.
 
