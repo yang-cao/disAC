@@ -48,8 +48,8 @@ incremental maintenance cost of the generated \bdss.
 \eetitle{Parametric queries}.
 \warn{We used built-in %parameterized
 parameteric \SQL queries of both benchmarks. To evaluate with
-larger workloads and the different query complexities, we
-further extracted and populated \xx and \xx sub-queries from
+larger workloads and study the impact of different query complexities, we
+further extracted and populated \xx and \xx queries from
 \tpch and \imdb built-in queries, with the number \#-\at{join}
 of joins varied from \xx to \xx; in total, we had 6 queries for
 each \#-\at{join} for each benchmark.}
@@ -176,8 +176,8 @@ In particular, each \bs $\kb{R}\bschema{X}{Y}$ is
 implemented in Cassandra as a table with both $XY$ as the key
 such that (a) attributes $X$ must precede $Y$ in the keys and
 (b) keys are sorted by $X$. This is a lightweight implementation
-of the \baav schemas with Cassandra since it does not require
-any modifications to Cassandra.
+of the \baav schemas with Cassandra and does not require
+any modification to Cassandra.
 However, its performance is actually slower than a hack-in
 implementation of the \baav model inside Cassandra since
 locating the keys for a given $X$-value would incur $O(\log n)$
