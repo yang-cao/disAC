@@ -19,7 +19,8 @@ MapReduce, Spark and the aforementioned \SQL layers atop them, to
 benefit from %harvest the power of
 parallel computing in the cloud or over a  cluster %s
 of commodity machines. After all, it is highly
-impractical to ask data scientists and analysts to configure and run a
+impractical to require %ask
+data scientists and analysts to configure and run a
 parallel RDBMS, \eg Greenplum~\cite{greenplum}.}
 %, for sometimes short lived data science or analytical applications.}
 
@@ -80,7 +81,7 @@ which are a common operation in \SQL evaluation, incur an excessive
 number of \get invocations over relations in \kv stores.
 \end{example}
 
-\vspace{0.6ex}
+%\vspace{0.6ex}
 \revise{To alleviate the scan overhead for analytical \SQL processing over
 \kv stores, a %the
 {\em block-as-a-value} (\baav) model has recently been
@@ -117,12 +118,15 @@ This illustrates the flexibility and benefits of the \baav
 model: it allows us to retrieve only necessary data values for
 answering $Q_{1}$ without the costly scans.\looseness=-1 %over \kv-stores.
 
+\vspace{0.6ex}
 However, the performance of $Q_{1}$ heavily relies on %the way
 how
 the relations are mapped into \baav. %the \baav forms.
 Indeed, the
 tuple-as-a-model schemas are a special case of the \baav
-schemas, but $Q_{1}$ has to fully scan all three relations. Even $Q_{1}$
+schemas, \revise{but under which} $Q_{1}$
+has to %fully
+scan all three relations. Even $Q_{1}$
 can be made scan-free, its performance may still vary over
 different \baav schemas. For example, assume that
 we replace $\kb{\at{T}}_{1}$
@@ -133,12 +137,14 @@ plan above
 still works but retrieves much %many
 more data %values
 from $\kb{\at{T}}_{1}'$:
-\warn{with $\kb{\at{T}}_{1}'$ it fetches \at{transaction}
+\revise{%with $\kb{\at{T}}_{1}'$
+it fetches \at{transaction}
 records from all \at{payee}'s on 2020-06-01, instead of only
 those from {\normalsize `Amazon'} when using $\kb{\at{T}}_{1}$.}
 %\warn{Add more details: how serious   the extra retrieval is}
 \end{example}
 
+%\vspace{-0.3ex}
 
 As shown in Example~\ref{exa-baav}, \baav supports {\em scan-free
 query evaluation} provided with a good \baav schema.  However,
@@ -149,11 +155,13 @@ evaluating %scan-free
 queries over a \baav schema~\cite{VLDB19}, an open question is
 how to design ``the best'' \baav schema?\looseness=-1
 
+\vspace{0.36ex}
+
 \eetitle{Challenges}. %In a nutshell,
 Given a query load
 $\Q$, we want to design ``the best'' \baav schema
 $\kb{\R}$ that allows us to evaluate queries in $\Q$
-with minimum time and space, \warn{by leveraging scan-free
+with minimum time and space, \revise{by leveraging scan-free
 \SQL evaluation provided by \baav.}
 %without costly scans.
 Here we consider parametric \SQL 
@@ -170,10 +178,11 @@ answer queries of $\Q$ over \kv stores.
 \vspace{0.36ex}
 This schema selection problem is nontrivial.
 For conventional database schema design, a variety of
-normal forms covered by textbooks provide us with
+normal forms \revise{are covered by textbooks and} provide us with
 guidelines~\cite{AbHuVi1995}.
 When it comes to \baav schema, no normal form is
-yet in place. A number of questions have to be answered.
+yet in place. Several %A number of
+questions have to be answered.
 How to measure
 the quality of a \baav schema $\kb{\R}$ for a query load $\Q$?
 How to group key and value attributes for $\kb{\R}$
@@ -195,8 +204,8 @@ selection or is it beyond reach in practice?
 
 
 %%%%%%%%
-\stitle{Contribution \& organization}. This paper investigates %tackles
-these questions, and gives a full treatment to the design of
+\stitle{Contribution \& organization}. This paper aims to investigate %tackles
+these questions, and give a full treatment to the design of
 \baav schemas for parametric \SQL queries over \kv-stores.
 
 \eetitle{(1) A framework} (Section~\ref{sec-schema}). We propose a
@@ -241,19 +250,22 @@ Taken together, (3) and (4) provide a practical
 \eetitle{(5) Experimental study} (Section~\ref{sec-expt}). 
 Using \warn{\tpch~\cite{tpch} and \imdb~\cite{LeisGMBK015} benchmarks}, we
 evaluate the effectiveness
-of \baav schema deduced %by our algorithms
+of deduced \baav schema %by our algorithms
 and the efficiency of
 our schema selection algorithms.
 We find the following.
-(a) Scan-free evaluation does work well with \baav schemas found
-by our algorithms. With SparkSQL-over-Cassandra (\soc), on average \warn{\tpch and
+(a) Scan-free evaluation %does
+works well with \baav schemas found
+by our algorithms. With SparkSQL-over-Cassandra (\soc),
+on average \warn{\tpch and
   \imdb built-in benchmark queries} can be made \xx and \xx
-times faster, respectively, over \baav schemas
-are computed by our algorithms than over the conventional
+times faster, respectively, over \revise{\baav schemas
+%are
+computed} by our algorithms than over the conventional
 tuple-as-a-value schemas.
-(b) \warn{Our algorithms are effective.
+(b) \revise{Our algorithms are effective.
 Over \tpch and \imdb,  \soc is 4.28 and \xx times
-faster with \baav schemas generated by our algorithms than with
+faster under \baav schemas generated by our algorithms than under  
 those generated by the baselines, respectively.}
 Moreover, the gaps increase when the queries have more joins or the datasets grow bigger.
 % than relations stored under
@@ -261,11 +273,10 @@ Moreover, the gaps increase when the queries have more joins or the datasets gro
 (b) Our algorithms are able to select
 the optimal normalized \baav schema for \warn{\tpch and \imdb}
 queries within 0.42 and 0.27 seconds, respectively.
-
-\revise{Revise after new experiments. New benchmarks of \SQL?}
+\warn{Revise after new experiments.}
 
 \vspace{0.6ex}
-\warn{All formal details and proofs can be found in the full
+\revise{All formal details and proofs can be found in the full
 version~\cite{full}.}
 
 \stitle{Related work}. The related work is organized as follows.
@@ -279,7 +290,9 @@ their
 superior horizontal scalability and availability with even
 commodity machines, they have been increasingly used to store
 relations and support scalable \SQL processing over
-\kv-stores~\cite{spanner1,spanner,myrocks}. This is realized by
+\kv-stores~\cite{spanner1,spanner,myrocks}. This is
+\revise{implemented under}
+%realized by
 the SQL-over-NoSQL architecture~\cite{kvscan}, where relations
 are stored in \kv-stores using the tuple-as-a-value model, and
 \SQL processing is conducted by a separated \SQL
@@ -300,20 +313,71 @@ that do not fit  the point access design of \kv systems well.
 It proposed the \baav model for relations in \kv-stores so as to
 reduce scans for \SQL evaluation over relations in \kv-stores.
 
-\vspace{0.36ex}
+\vspace{0.6ex}
 This work targets an open problem left by~\cite{VLDB19}, \ie
-the design, rank and
+the design, \revise{ranking} and
 selection of a good database schema for relations in \kv-stores
 under the \baav model to support parametric query workloads; the
-study is vital to making use of the \baav model in practice.
+study is vital to making \revise{practical}
+use of the \baav model in practice.
 Taken together with the algorithms of~\cite{VLDB19} for
 scan-free evaluation, it makes one step further toward speeding
 up \SQL query answering on \kv systems under the
 block-as-a-value model.
 
 
+\eetitle{Index and view selection}.
+\revise{To speed up get operations over non-key
+attributes, modern \kv systems have explored %can
+%attempt to use %secondary and covering
+the use of} indices (see \eg~\cite{ChrysafisCDDEGG19}).
+Consider a relation $D$ in \kv stores and
+$\get(k)$ operations with $k$ on some non-key attributes $X$ of
+$D$. \revise{To avoid scanning the entire $D$, 
+the current approach is to build an index
+on attributes $X$, which yields essentially a tuple-as-a-value
+relation with $X$ padded with tuple identifiers of $D$
+as a compound key~\cite{QaderCH18}. However, \get operations
+with such an index still have to scan over the ``index table''
+since $k$ is not unique for desired attributes of $X$}.
+As noted in  \cite{VLDB19},
+\baav is complementary to the indexing
+approach, and one can combine the two by building indices over
+\baav relations.
 
-\warn{
+\vspace{0.6ex}
+\revise{Related to this work is also index selection
+(\eg~\cite{BrunoC05,BrunoCKNRS11,PapadomanolakisA07}).
+For both RDBMS and SQL over \kv stores, index-based data access
+is to fetch entire tuples (or tuple identifiers), and it is
+typically carried out by greedy heuristics.
+In contrast, \baav databases need to fetch and compose
+values (\ie relevant partial tuples)  when answering queries.
+The objective of \baav schema selection is to make best use of 
+scan-free evaluability that is unique to \baav, and it
+requires aligning and reasoning about \baav schemas. 
+In light of these, the greedy heuristics for 
+index selection cannot be applied to
+\baav schema selection. While \cite{PapadomanolakisA07} also uses
+ILP to select pre-defined indices, it reduces the task
+to a minimum set cover (\msc) problem and adopts ILP
+formulation of \msc directly. As will be seen in
+Section~\ref{sec-rank}, \baav schema selection
+requires reasoning about scan-free evaluability, which
+is much more demanding than \msc}.
+
+
+\vspace{0.6ex}
+\revise{Also related is the study of materialized view
+selection (see \cite{DBLP:journals/sigmod/MamiB12} for a
+survey). It is to pick a set of queries and materialize their answers
+in order to reuse them for future queries.
+For the same reasons as for index selection above, view
+selection is often carried out by greedy heuristics with
+additional pruning strategies, which are unable to reason about \baav schemas
+for scan-free evaluation.}
+
+\eat{
 \eetitle{Index and view selection}.
 Modern \kv systems can also use %secondary and covering
 indices to speed up get operations over non-key
@@ -390,7 +454,8 @@ bounded evaluation~\cite{PODS14,PODS15,SIGMOD16,PODS16}, to
 formalize scale independent query evaluation under access
 constraints, which are, to some extent, a restricted form of the
 \baav schema with cardinality constraints. %(cf.~\cite{VLDB19}).
-Indeed, the techniques of bounded evaluation can be adopted to answer
+%Indeed,
+The techniques of bounded evaluation can be adopted to answer
 queries over \baav databases as observed by \cite{VLDB19}.\looseness=-1
 
 This work differs from bounded evaluation in that we focuses on

@@ -1,15 +1,26 @@
-\vspace{2ex}
+\vspace{-0.3ex}
 %%%%%%%% Section 3 %%%%%%%%
 \section{Ranking Cache Schemas}
 \label{sec-rank}
+\vspace{-0.4ex}
 
-
-We next develop criteria for ranking \bdss. We then
+\revise{In this Section we first} develop criteria for ranking \bdss. We then
 formulate the \bds selection problem  and
 prove its intractability.
 
-
-\warn{\stitle{Scan-free evaluability}.
+\vspace{-0.4ex}
+\stitle{Scan-free evaluability}.
+One naturally wants to find \bdss that can make as many queries
+scan-free as possible, \revise{to avoid relation scans}.
+However, this alone does not make good \bdss.
+For instance, recall query $Q_{1}$ and \bss $\kb{\at{T}}_{1}$
+and $\kb{\at{T}}_{1}'$ from Example~\ref{exa-baav}; $Q_{1}$ is
+scan-free over both $\kb{\at{T}}_{1}$ and $\kb{\at{T}}_{1}'$
+while its scan-free plan over $\kb{\at{T}}_{1}$ is superior \revise{to that}
+over $\kb{\at{T}}_{1}'$ since it fetches fewer attributes and 
+values. Moreover, making all queries
+scan-free evaluable \revise{may not always be possible}.
+\eat{%EAT
 One naturally wants to find \bdss that can make as many queries
 scan-free as possible, to benefit from the feature of scan-free evaluation
 from \baav databases.  However, this alone does not make good \bdss.
@@ -26,34 +37,62 @@ falls back to the conventional tuple-as-a-value model.}
 
 
 \vspace{0.6ex}
-\warn{This motivates us to consider the {\em degrees} of \bss
+This motivates us to consider the {\em degrees} of \bss
+below to further measure the quality of \bdss and
+\revise{identify ``good'' \bdss.}
+\eat{This motivates us to consider the {\em degrees} of \bss
 below to further measure the quality of \bdss
 to distinguish good \bdss from bad ones, although both of
 which can make queries scan-free.}
 
 
-\warn{\stitle{Degree}.
+\stitle{Degree}.
 The degree of a \bs $\kb{R}\bschema{X}{Y}$, denoted by
 $\deg(\kb{R})$, is the size $|Y|$ of $Y$, \ie the number of
-attributes in $Y$. The degree $\deg(\kb{\R})$ of a \bds
-$\kb{\R}$ is as the sum of the degrees of all \bss in $\kb{\R}$.}
+attributes in $Y$. \revise{We define $\deg(\kb{\R})$ of a \bds
+$\kb{\R}$ as the sum of the degrees of all \bss in $\kb{\R}$}.
+%The degree $\deg(\kb{\R})$ of a \bds
+%$\kb{\R}$ is as the sum of the degrees of all \bss in $\kb{\R}$.
 
-\warn{Intuitively, we want to find \bss with smaller degrees
+\vspace{0.36ex}
+\revise{Intuitively, the smaller degree a \bds has,
+the less attributes the \get operations fetch from its instances,
+and the smaller blocks of values are accessed}. For example, the
+scan-free evaluation of $Q_{1}$ over $\kb{\at{T}}_{1}$ fetches
+fewer \at{transaction} values than over $\kb{\at{T}}'_{1}$.
+%
+\eat{Intuitively, we want to find \bss with smaller degrees
 since \get operations over them fetch fewer attributes and hence
 tend to access smaller blocks of values. For example, the
 scan-free evaluation of $Q_{1}$ over $\kb{\at{T}}_{1}$ fetches
 fewer \at{transaction} values than over $\kb{\at{T}}'_{1}$.}
 
 
-\vspace{1ex}
-\warn{Note that scan-free evaluability and \bs degrees are measures
+\vspace{0.8ex}
+Note that the scan-free evaluability and \bs degrees are measures
+unique to the \baav model. \revise{These have been studied in 
+neither conventional database design nor index and view selection.
+The two} have to work together to assess the performance of query
+evaluation over the selected \bdss. \revise{This is, however, nontrivial}.
+\eat{Note that scan-free evaluability and \bs degrees are measures
 unique to the \baav model, and have not been used in the
 conventional database design or index and view selection.
 They have to work together to assess the performance of query
 evaluation over the selected \bdss. This however is not easy as
 shown below.}
 
-\warn{\eetitle{Intricacy I}. Indeed, maximizing scan-free evaluability
+\eetitle{Challenge 1}. \revise{One naturally wants to 
+maximize the scan-free evaluability
+of the selected \bds $\kb{\R}$, \ie to maximize the number of
+queries that can be made scan-free evaluable over $\kb{\R}$.
+This is often carried out by reducing the key attributes
+in the \bss (\ie $X$ in \bs $\bschema{X}{Y}$) of $\kb{\R}$.
+However, with this comes the increase of $\deg(\kb{\R})$
+since $\kb{\R}$ is in normal form for $\Q$. The interaction
+of the two is nontrivial}. Indeed, optimizing both criteria is
+already intractable, as shown below.
+\eat{%EAT
+\eetitle{Intricacy I}. Indeed, maximizing scan-free evaluability
 of the selected \bds $\kb{\R}$ (\ie maximizing the number of
 queries that can be made scan-free evaluable over $\kb{\R}$)
 tend to minimize the key attributes in the \bss (\ie $X$ in \bs
@@ -63,26 +102,40 @@ reduce key attributes.  Indeed, optimizing both criteria is
 already intractable, as shown below.}\looseness = -1
 
 \begin{lemma}\label{lem-criteria}
-\warn{Given a self-join free \SPC query $Q$ over database schema $\R$
-and an integer $k$, it is already \NP-hard to decide whether
-there exists a \bds $\kb{\R}$ over which $Q$ is scan-free and $\deg(\kb{\R}) \leq k$.}
+Given a self-join free \SPC query $Q$ over database schema $\R$
+and an integer $k$, it is %already
+\NP-hard to decide whether
+there exists a \bds $\kb{\R}$ \revise{such that $Q$ is scan-free
+over $\kb{\R}$ and $\deg(\kb{\R}) \leq k$}.
+%over which $Q$ is scan-free and
+%$\deg(\kb{\R}) \leq k$.}
 \end{lemma}
 
-\warn{Here an \SPC query is a relational algebra query composed of
+Here an \SPC query is a relational algebra query \revise{defined with}
+selection, project and Cartesian-product (or join) operators
+only. \SPC queries are the simplest but mostly used class of
+\SQL queries. A self-join free \SPC query is an \SPC query
+without self-joins (cf.~\cite{AbHuVi1995}).
+\eat{Here an \SPC query is a relational algebra query composed of
 selection, project and Cartesian-product (or join) operators
 only. \SPC queries are the simplest but mostly used class of
 \SQL queries. A self-join free \SPC query is an \SPC query
 without self-joins.}
 
-
-\begin{proofS} \warn{This is proved by reduction from the minimum set
+\vspace{0.36ex}
+\begin{proofS}~This is verified by reduction from the minimum set
   cover (\msc) problem, which is \NP-complete
-  (cf.~\cite{Papa1994}). Each set of the \msc\ instance is
+  (cf.~\cite{Papa1994}). Each set \revise{in a given \msc instance} is
   encoded by a relation atom of $Q$ and each set cover is encoded
+  by a \bds over which $Q$ is scan-free.
+\eat{This is proved by reduction from the minimum set
+  cover (\msc) problem, which is \NP-complete
+  (cf.~\cite{Papa1994}). Each set of the \msc instance is
+  encoded by a relation atom of $Q$, and each set cover is encoded
   by a \bds over which $Q$ is scan-free.}
 \end{proofS}
 
-\warn{\eetitle{Intricacy II}. The other challenge of optimizing \bds
+\eat{\eetitle{Intricacy II}. The other challenge of optimizing \bds
 with scan-free evaluability comes from semantic query rewriting.
 Indeed, via syntactic checking, a query $Q$ may not look
 scan-free over a \bds $\kb{\R}$;
@@ -94,18 +147,73 @@ $\kb{\R}$. Hence, finding an optimal \bds \wrt scan-free
 evaluability is also undecidable for \RA. Here \RA queries are
 \SQL queries without group-by and aggregation.}
 
-\vspace{0.4ex}
-\warn{To alleviate this, we adopt the effective syntax of scan-free
+\eetitle{Challenge 2}. \revise{Another} challenge of optimizing \bds
+schema %with the scan-free evaluability
+comes from semantic query rewriting.
+\revise{While a query $Q$ may not ``synthetically'' look
+scan-free over a \bds $\kb{\R}$, 
+it is possible to find  a semantically equivalent query $Q'$ that
+scan-free over $\kb{\R}$.
+However, one can verify that it is undecidable to determine whether
+an \RA (relational algebra) query is scan-free over a \bds
+$\kb{\R}$, by reduction from the equivalence problem for
+\RA queries, a well-known undecidable problem (cf.~\cite{AbHuVi1995}).
+Here \RA queries are \SQL queries without group-by and aggregation.
+As a result}, finding an optimal \bds \wrt scan-free
+evaluability is also undecidable for \RA. 
+
+
+\vspace{0.36ex}
+To alleviate this, we adopt the effective syntax of scan-free
+\SQL queries studied in \cite{VLDB19}, \revise{and consider scan-free
+queries that are covered by the syntax}. The syntax can express
+all scan-free \SQL queries up to equivalence and can be checked in
+\PTIME. \revise{In other words, the effective syntax identifies the
+{\em core} subclass of scan-free
+\RA queries, {\em without sacrificing their expressive power}.
+Informally}, the effective syntax requires reasoning about the \bss
+over the queries via chasing, in a way that to some extent is
+similar to the implication analysis of functional dependency
+(see \cite{full} for details).
+
+\eat{To alleviate this, we adopt the effective syntax of scan-free
 \SQL queries of \cite{VLDB19} such that we consider scan-free
 queries that are covered by the syntax. The syntax can express
 all scan-free \SQL queries up to equivalence and can be checked in
 \PTIME. The effective syntax requires reasoning about the \bss
 over the queries via chasing, in a way that to some extent is
 similar to the implication analysis of functional dependency
-(see full version \cite{full} for details).}
+(see  full version \cite{full} for details).}
+
+\stitle{Ranking \bds}. \revise{Despite the challenges, we 
+develop a ranking function for \bds design.
+Given a} database schema $\R$ and a set $\Q$ of parametric
+queries over $\R$, we rank \bds $\kb{\R}$ that are in normal
+form for $\Q$ via the following aggregated ranking function:
+\vspace{-0.7ex}
+\[f(\Q, \kb{\R}) = c_{1}*\usf(\Q, \ak \kb{\R}) + c_{2}*\deg(\kb{\R}) + \ak c_{3}*\size(\kb{\R}),
+\vspace{-0.7ex}\]
+where $c_{1}$, $c_{2}$ and $c_{3}$ are importance coefficients
+of the criteria given by the users and are normalized, \ie
+$\sum_{i=1}^{3}c_{i} = 1$; and
+\be
+  \item {\em scan-free evaluability}: $\usf(\Q, \kb{\R})$ measures
+  the number of
+queries in $\Q$ that are {\em not} scan-free evaluable over $\kb{\R}$;
+  \item {\em degree}: $\deg(\Q, \kb{\R})$ is the total degree of $\kb{\R}$;
+    and
+  \item {\em size}: \warn{$\size(\kb{\R})$ denotes the total size of \bss in $\kb{\R}$}.
+  \ee
+Following traditional database design approaches which treat
+$\size()$ as a given oracle (\eg~\cite{PapadomanolakisA07}), we
+also support existing size estimations provided by the
+database systems~\cite{BrunoCKNRS11}.  Our methods and
+performance guarantees works with any estimators as long as they
+are linear in the attributes of the schemas, as is the case in
+\eg~\cite{PapadomanolakisA07}.
 
 
-\warn{\stitle{Ranking \bds}. Having presented two unique ranking
+\eat{\stitle{Ranking \bds}. Having presented two unique ranking
 criteria for \bdss and analyzed their intricacy, we are now
 ready to give the ranking function we will use for \bds design.
 Given database schema $\R$ and a set $\Q$ of parametric
@@ -129,8 +237,47 @@ Intuitively, it is an estimation of the size of \baav databases
 of $\kb{\R}$ at the schema level; the smaller $\size(\kb{\R})$
 is, the smaller the \baav databases of $\kb{\R}$.}
 
+\warn{The size estimate is hardly accurate}
 
-\warn{\stitle{Remark}. (1) We acknowledge that there are many
+\eetitle{Remarks}. (1) \revise{The objective of the
+ranking function $f(\Q, \kb{\R})$ is to highlight
+ the new challenges introduced} by the \baav model, \ie scan-free
+evaluability and degrees.
+\revise{We aim to show that given $f(\Q, \kb{\R})$, there are
+algorithms to develop \bss with certain optimality despite the
+challenges above. This said, 
+there are other conventional criteria for ranking indices and views.
+These criteria can be incorporated into $f(\Q, \kb{\R})$
+to optimize the targeted applications, \eg to reduce
+maintenance cost and provide more accurate cost estimation.
+Our \bss selection} algorithms are generic and robust to
+such extensions.
+%
+\warn{By default, we adopt a simple schema-level size estimation such that
+$\size(\kb{\R})$ sums up the total number
+of attributes in \bss of $\kb{\R}$, \ie
+$\size(\kb{\R}) = \sum_{\bschema{X}{Y}\in \kb{R}}|XY|$.
+Intuitively, it is an \revise{indicator} %estimation
+of the size of \baav databases
+of $\kb{\R}$ at the schema level; the smaller $\size(\kb{\R})$
+is, the smaller the \baav databases of $\kb{\R}$.}
+
+
+\eat{\warn{This is not clear: We estimate the size of \baav
+databases in $f(\Q, \kb{\R})$, measured by $\size(\kb{\R})$ at
+the schema level, to align with the main
+targeted application scenarios of \baav databases, \ie
+analytical \SQL queries for SQL-over-NoSQL (key-value) systems.}}
+
+
+\sstab (2) One can also \revise{associate an importance weight $w_{Q}$ with}
+each parametric query $Q$ in workload $\Q$, representing \eg its
+frequency of being instantiated in the workload. We remark that
+all the results in the sequel remain unchanged for such weighted
+version.
+
+
+\eat{\stitle{Remark}. (1) We acknowledge that there are many
 other conventional criteria for ranking indices and views that can
 also be applied to assess \bdss, % the database size and
 \eg incremental maintenance cost and update anomaly.
@@ -159,9 +306,10 @@ version.}
 
 
 \begin{example}\label{exa-measures}
-Recall $\kb{\R}_{1}$ and $\kb{\R}_{2}$ from Example~\ref{exa-mapping}.
-Let $\Q$ consist of only $Q_{1}$ from Example~\ref{exa-baav}.
-Consider rank function $f_{0}(\Q, \kb{\R})$ with $c_{1} = 0.98$
+Recall \revise{\bss $\kb{\R}_{1}$ and $\kb{\R}_{2}$}
+from Example~\ref{exa-mapping}.
+\revise{For workload $\Q$ consisting} of only $Q_{1}$ from Example~\ref{exa-baav},
+consider rank function $f_{0}(\Q, \kb{\R})$ with $c_{1} = 0.98$
 and  $c_{2} = c_{3} = 0.01$.
 %
 Then $\usf(\Q, \ak \kb{\R}_{1}) \ak = \ak 0$ since $Q_{1}$ is
@@ -178,18 +326,19 @@ $\daccess(\Q, \ak \kb{\R}_{2}) \ak = \ak 5$ and
 $\size(\Q, \ak \kb{\R}_{2}) \ak = \ak 13$.  Hence,
 $f_{0}(\Q, \kb{\R}_{2}) = 0.18$, \ie $\kb{\R}_{2}$ is worse than
 $\kb{\R}_{1}$ under $f_{0}$. Indeed, one can readily verify that
-$\kb{\R}_{1}$ is superior under $f(\Q, \kb{\R})$ with all
+$\kb{\R}_{1}$ is superior \revise{to $\kb{\R}_{2}$}
+under $f(\Q, \kb{\R})$ with all
 possible coefficients $c_{1}$, $c_{2}$ and $c_{3}$.
 
 \vspace{0.6ex}
-Now consider a revision $\kb{\R}_{3}$ of $\kb{\R}_{2}$ without
+Now consider a revision $\kb{\R}_{3}$ of $\kb{\R}_{2}$ without \revise{schema}
 $\kb{\at{T}}_{1}$. Then
 $Q_{1}$ is not scan-free over $\kb{\R}_{3}$ and hence
-$\usf(\Q,\ak \kb{\R}_{3}) = 1$. Further, observe that
+$\usf(\Q,\ak \kb{\R}_{3}) = 1$. Furthermore, observe that
 $\daccess(\Q, \ak \kb{\R}_{3}) = 4$ and
 $\size(\Q, \ak \kb{\R}_{3}) \ak = \ak 10$.
 Hence $f_{0}(\Q,\ak \kb{\R}_{3})\ak =\ak 1.12$,
-\ie $\kb{\R}_{3}$ is ranked lower than $\kb{\R}_{2}$ by $f_{0}$.
+\ie \bs  $\kb{\R}_{3}$ is ranked lower than $\kb{\R}_{2}$ by $f_{0}$.
 \end{example}
 
 \vspace{-0.4ex}
@@ -197,7 +346,7 @@ Hence $f_{0}(\Q,\ak \kb{\R}_{3})\ak =\ak 1.12$,
 
 
 
-\stitle{The problem of \bds selection}.
+\stitle{The problem of BDS selection}.
 The {\em \baav schema selection problem} is to compute, given a
 workload $\Q$ of parametric queries over $\R$ and an aggregate
 rank function $f$ (\ie $c_{1}$, $c_{2}$ and $c_{3}$), the
@@ -206,7 +355,8 @@ $\kb{\R}$ for $\Q$ with the minimum $f(\Q, \kb{\R})$ among all
 \bdss that are in the normal form for $\Q$.
 
 
-\stitle{Complexity}. Its  decision problem is to decide, given $\Q$, $f$ and a
+\eetitle{Complexity}. \revise{The  decision version of the selection problem}
+is to decide, given $\Q$, $f$ and a
 number $h$, whether there exists a \bds $\kb{\R}$ for
 $\Q$ such that $f(\Q, \kb{\R})\leq h$.
 We next show that the problem is intractable.
@@ -216,11 +366,11 @@ We next show that the problem is intractable.
 
 \begin{theorem}\label{thm-complexity}
   The \baav schema selection problem
-  is \NP-complete for \SQL %\SPC
+  is \NP-complete for \revise{\RA} %\SQL %\SPC
   queries. 
-It remains \NP-hard even $\Q$ consists of self-join free
+It remains \NP-hard even \revise{when} $\Q$ consists of self-join free
 \SPC queries only and $c_{3} = 0$ in
-the aggregate rank function $f$.
+the aggregate rank function $f$.\looseness=-1
 \end{theorem}
 
 %\warn{Extend it to \SQL instead of \SPC}

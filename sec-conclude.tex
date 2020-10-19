@@ -1,3 +1,4 @@
+\vspace{-0.3ex}
 %%%%%%%% Section 7 %%%%%%%%
 \section{Conclusion}
 \label{sec-conclude}
@@ -5,20 +6,22 @@
 
 We have identified, formulated and studied the \baav schema selection
 problem for \kv stores. We have proposed a normal form for \baav schemas,
-and come up with an aggregate rank function based on four practical
+and come up with an aggregate rank function based on %four
+practical
 criteria. We have shown that the schema selection problem is
 \NP-complete. Despite the intractability, we have developed
 efficient algorithms for selecting \baav schema while warranting
 optimality under practical conditions. Our experimental studied
 has verified that the method is practical, as indicated by
 the effectiveness of the \baav schema selected
-and the efficiency of the algorithms.
+and the efficiency of the algorithms.\looseness=-1
 
 One topic for future work is to learn coefficients of the aggregate
-rank function (Section~\ref{sec-rank}) possibly by employing machine
+rank function (Section~\ref{sec-rank}) possibly by employing
+machine
 learning models. Another topic is to extend the study to
 support multiple query loads that run on the same \kv store at the same time.
-A third topic is to implement the framework of Section~\ref{sec-schema}
-to support parametric queries, based on algorithms for
-schema selection and incremental maintenance of this paper
-and the query plan generation algorithms of~\cite{VLDB19}.
+%A third topic is to implement the framework of Section~\ref{sec-schema}
+%to support parametric queries, based on algorithms for
+%schema selection and incremental maintenance of this paper
+%and the query plan generation algorithms of~\cite{VLDB19}.\looseness=-1

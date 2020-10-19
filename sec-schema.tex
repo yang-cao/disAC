@@ -1,20 +1,22 @@
-\vspace{2ex}
+\vspace{-0.3ex}
 %%%%%%%% Section 2 %%%%%%%%
 \section{Block-as-a-Value Databases}
 \label{sec-schema}
+\vspace{-0.3ex}
 
-
-We first review the \baav model for relations in \kv-stores. We
+In this section, 
+we first review the \baav model for relations in \kv-stores. We
 then propose a normal form of \baav database schemas, and develop a
-framework for speeding up parametric queries over \kv-stores with
-normalized \baav databases.
+framework for speeding up \revise{the evaluation of}
+parametric queries over \kv-stores with normalized \baav databases.
 
 
 \stitle{Parametric queries}.
-Let $\R$ be a database schema, \ie a set of relation schemas.  
+Let $\R$ be a database schema, \ie a \revise{collection} of relation schemas.  
 We consider parametric queries of the form $Q[P_{Q}]$, where
-$Q$ is an \SQL query over $\R$, and $P_{Q}$ is a set of
-attributes in $Q$ referred to as {\em parameters}, whose values will
+$Q$ is an \SQL query over $\R$, and $P_{Q}$ is a set of \revise{variables
+that denote
+attributes in $Q$ and are} referred to as {\em parameters}, whose values will
 be instantiated before %during
 execution.
 %Here we consider \SPC queries, \ie 
@@ -41,19 +43,20 @@ support generic \SQL as well.
 }%EAT
 
 %%%%%%
-\stitle{BaaV databases}. Similar to conventional relational
+\stitle{BaaV databases}. Similar to conventional %relational
 databases, a block-as-a-value~\cite{VLDB19} (\baav) database is
 defined over a {\em \baav schema} $\kb{\R}$ (abbreviated
 as \bds) that consists of {\em \baav relation schemas}
-(\bss). Here a \bs $\kb{R}$ is of the form $\bschema{X}{Y}$,
+(\bss). Here a \bs $\kb{R}$ has the form $\bschema{X}{Y}$,
 where $X$ and $Y$ are sets of attributes. A \baav instance
 $\kb{D}$ of $\kb{R}$ is a collection of key-block pairs $(k, B)$,
 where each $k$ is an $X$-value and $B$ is a set of $Y$-values.
 A {\em \baav database} $\kb{\D}$ of \bds $\kb{\R}$ is a
 collection of \baav instances of \bss in $\kb{\R}$.
+
 We refer to
 the maximum size of the blocks in $\kb{D}$ as {\em the degree
-of $\kb{D}$}.
+of $\kb{D}$}.\looseness=-1
 
 \vspace{0.6ex}
 A \baav instance $\kb{D}$ supports a \get operation such that given
@@ -76,6 +79,8 @@ from relational algebra or bulk $\bget(T)$ operations, where each $T$ is
 (a) a constant, %in the queries,
 (b) an intermediate result computed by a prior operation, or
 (c) a \bs $\kb{R}$ (\ie a scan of a relation in \baav).
+
+\vspace{0.36ex}
 Plan
 $\xi$ is called {\em scan-free} if it does not have any
 $\bget(\kb{R})$
@@ -85,7 +90,7 @@ if moreover,
 the parameter $T$ of every $\bget(T)$ is a constant (\ie of type (a) only).
 
 \vspace{0.6ex}
-\warn{As observed in \cite{VLDB19},
+\revise{As observed in \cite{VLDB19},
 % for the same query, over the same \baav database
  a scan-free plan can be orders of magnitude
 faster than plans that are not scan-free.  Moreover, \baav
@@ -142,13 +147,14 @@ Recall schemas $\kb{\at{T}}_{1}\bschema{(\at{date},\ak
 \at{payee})}{\at{cid}}$,
 $\kb{\at{C}}_{1}\bschema{\at{cid}}{\at{bid}}$, and
 $\kb{\at{B}}_{1}\bschema{\at{bid}}{\at{city}}$ from
-Example~\ref{exa-baav}; they are \bss. Let $\kb{\R}_{1}$ be
-the set consisting of the three of them. Then $\kb{\R}_{1}$ is a
-\bds and the identity mapping maps $\R_{1}$ of Example~\ref{exa-baav} to
-$\kb{\R}_{1}$.
-\looseness = -1
+Example~\ref{exa-baav}; these are \bss. Let $\kb{\R}_{1}$ be
+the set consisting of the three \bss. Then $\kb{\R}_{1}$ is a
+\bds and the identity mapping maps
+\revise{conventional schema $\R_{1}$ of Example~\ref{exa-baav} to
+\bds $\kb{\R}_{1}$}.
+%\looseness = -1
 
-\vspace{0.36ex}
+\vspace{0.6ex}
 Consider \bds $\kb{\R}_{2}$ that extends $\kb{\R}_{1}$ with two
 additional \bss:
 $\kb{\at{B}}_{2}\bschema{\at{city}}{\at{bid}}$ and
@@ -159,13 +165,161 @@ also witnessed by the identity mapping. In particular, $\kb{\at{TC}}_{1}$
 contains attributes from both $\at{T}$ and $\at{C}$ of $\R_{1}$.
 \end{example}
 \looseness = -1
-\vspace{-0.4ex}
+
+\vspace{-0.7ex}
 
 
+
+
+
+\stitle{BaaV normal form}.
+Consider a set $\Q$ of parametric queries
+over $\R$ and a \bds $\kb{\R}$. We say that $\kb{\R}$ is in
+  {\em the normal form} (or is {\em normalized}) for $\Q$ if there exists a
+mapping $g$ from $\R$ to $\kb{\R}$ such that every query $Q$ in $\Q$
+can be answered over $\kb{\R}$. That is,  there exists a query plan
+$\xi_{Q}$ over $\kb{\R}$ such that for any database $\D$ of $\R$,
+$\xi_{Q}(\kb{\D}) = Q(\D)$, \ie the execution of 
+$\xi_{Q}$ on the sibling \baav database $\kb{\D}$ of $\D$ mapped
+via $g$ computes exactly the answer to $Q$ in $\D$.
+
+\vspace{0.6ex}
+\revise{Note that not every \baav schema mapped from database schema
+$\R$ can answer every query over $\R$ and the normal form
+characterizes all sensible \baav schemas for $\R$ \wrt
+parametric queries $\Q$.}\looseness=-1
+
+%\vspace{0.6ex}
+Here we consider query plans $\xi$ with one bulk $\bget(T)$
+operation
+over $\kb{\R}$ for each relation $R$ in $\R$, \ie there
+exists only one $\bget(T)$ %operation
+in $\xi$ that fetches values
+for each $R$. This is to ensure that $\xi$ fetches values that
+are from the same tuples in an instance of $R$.
+
+
+\begin{example}\label{exa-norm}
+The \bds $\kb{\R}_{1}$ of Example~\ref{exa-mapping} is in the normal
+form for query $Q_{1}$ over database schema
+$\R_{1}$ of Example~\ref{exa-baav}. Indeed,
+the plan outlined %in
+there %Example~\ref{exa-baav}
+can always compute the answers
+to $Q$ in any \revise{instance} %database
+$\D$ of $\R_{1}$ by executing it over the
+sibling $\kb{\D}$ of $\D$ over \bds $\kb{\R}_{1}$.
+\end{example}
+
+\vspace{-0.7ex}
+
+\revise{\stitle{Scan-free queries}. Consider database schema $\R$ and
+parametric query $Q[P_{Q}]$ over $\R$. Let $\kb{\R}$ be a
+normalized \baav schema for $\R$. Then $Q[P_{Q}]$ is {\em
+  scan-free (evaluable)} if for any instantiation $Q[P_{Q} = \bar c]$ of
+$Q[P_{Q}]$, there exists a scan-free query plan $\xi$ over
+$\kb{\R}$ for $Q[P_{Q} = \bar c]$, \ie for any database $\D$ of
+$\R$, $Q[P_{Q}=\bar c](\D) = \xi(\kb{\D})$, where \baav database
+$\kb{\D}$ is the sibling of $\D$ over $\kb{\R}$.
+Intuitively, we want to design normalized \baav schemas for $\R$
+on which the queries are scan-free.}\looseness=-1
+
+
+
+
+
+
+\stitle{A framework}. We now propose a framework for speeding up
+parametric queries with sibling \baav databases. Consider
+workload $\Q$ of parametric queries over database schema $\R$.
+\mbi
+\item[(1)] It computes a sibling \bds $\kb{\R}$ of $\R$ in the
+normal form for $\Q$.
+\item[(2)] It constructs the sibling \baav database $\kb{\D}$ of
+$\kb{\R}$ for the database $\D$ of $\R$, and maintains $\kb{\D}$ in
+response to updates to $\D$.
+\item[(3)] For any query $Q$ instantiated from parametric queries
+in $\Q$, it answers $Q$ over $\kb{\D}$, benefiting from the \baav
+model.
+\mei
+
+\eat{\sstab (1) It computes a sibling \bds $\kb{\R}$ of $\R$ in the
+normal form for $\Q$.\looseness = -1
+
+\sstab (2) It constructs the sibling \baav database $\kb{\D}$ of
+$\kb{\R}$ for the database $\D$ of $\R$, and maintains $\kb{\D}$ in
+response to updates to $\D$.
+\looseness = -1
+
+
+\sstab (3) For any query $Q$ instantiated from parametric queries
+in $\Q$, it answers $Q$ over $\kb{\D}$, benefiting from the \baav
+model.}%EAT
+
+
+
+\vspace{0.36ex}
+We will develop a solution to Step~(1)
+in Sections~\ref{sec-rank}--\ref{sec-cover}.
+For step~(3), algorithms for finding query plans
+have already been developed in~\cite{VLDB19}.
+Below we outline a solution for step~(2).
+
+\eetitle{Step~(2)}.
+We show that
+the incremental maintenance of \baav instance $\kb{D}$
+of $\kb{R}$ is {\em bounded}~\cite{Reps96} when the \bs $\kb{R}\bschema{X}{Y}$
+consists of attributes from the same relation of $\R$.
+That is, the maintenance cost is determined by the
+  size of updates, not by the \revise{size} of possibly big database $\D$.
+  \revise{Since updates are typically small in the real world, 
+  $\kb{D}$ can be efficiently maintained no matter how
+  big $\kb{D}$ grows.}
+
+\vspace{0.36ex}
+\revise{More specifically, 
+(1) for} a set $\Delta^{+}$ of tuple insertions to $R$, updating $\kb{D}$
+with $\Delta^{+}$ %$\Delta$
+can be simply done by projecting $\Delta^{+}$ %$\Delta$
+to $XY$
+attributes and grouping them by $X$; this takes
+$O(|\Delta^{+}|\log|\Delta^{+}|)$-time, where $|\Delta^{+}|$ is
+the size of $\Delta^{+}$, independent of the size $|\kb{\D}|$ of
+$\kb{\D}$. Similarly, (2) \revise{deletions} %updates
+$\Delta^{-}$ can be
+handled in $O(d*|\Delta^{-}|)$-time, where $d$ is the degree of
+$\kb{\D}$, which is again independent of $|\kb{\D}|$.
+(3) When $\kb{R}$ contains
+attributes from \eg two relations $R$ and $R'$ of $\R$ where $R$
+has a foreign key for $R'$, the
+%incremental
+maintenance cost is dominated by the cost of
+maintaining the key-foreign key join $R\Join R'$ for $\kb{R}$, 
+which is bounded by
+% \warn{$O(\cd{\Delta^{+}}|R|)$}
+$O(\cd{\Delta^{+}}\cd{R'}\log(\cd{\Delta^{+}}\cd{R'}))$ (assuming
+that $\Delta^{+}$ is update of tuple insertions
+%is tuple insertion updates
+to $R$; $\cd{R'}$ is the number of
+attributes of $R'$), also 
+independent of $\cd{\D}$; similarly for other cases.
+
+%\warn{Key-foreign key join should be bounded?}
+
+\eat{Hence \baav databases can be maintained
+  in a cost determined by the size of updates, no matter how
+  big $\kb{D}$ grows.}
+
+\eat{%EAT
+\eetitle{Remark}. The framework also supports generic \SQL
+queries. Indeed, step (3) already supports generic \SQL queries
+(cf.~\cite{VLDB19}). Steps (1) and (2) handle generic \SQL by
+treating each query as a collection of its \SPC sub-queries.
+}%EAT
 
 \begin{table}[t!]
-  \caption{A summary of notations\label{tab-notation}}
-  \vspace{-1ex}
+%  \caption{A summary of notations\label{tab-notation}}
+  %\vspace{-1ex}
   \begin{small}
     \hspace*{-0.7ex}\begin{tabular}{l|l}
       \toprule
@@ -182,132 +336,9 @@ contains attributes from both $\at{T}$ and $\at{C}$ of $\R_{1}$.
       \bottomrule
     \end{tabular}
   \end{small}
-  \vspace{-2.7ex}
+  \caption{A summary of notations\label{tab-notation}}
+  \vspace{-4.7ex}
 \end{table}
-
-
-
-\stitle{\baav normal form}.
-Consider a set $\Q$ of parametric queries
-over $\R$ and a \bds $\kb{\R}$. We say that $\kb{\R}$ is in
-  {\em the normal form} (or is {\em normalized}) for $\Q$ if there exists a
-mapping $g$ from $\R$ to $\kb{\R}$ such that every query $Q$ in $\Q$
-can be answered over $\kb{\R}$. That is,  there exists a query plan
-$\xi_{Q}$ over $\kb{\R}$ such that for any database $\D$ of $\R$,
-$\xi_{Q}(\kb{\D}) = Q(\D)$, \ie the execution of 
-$\xi_{Q}$ on the sibling \baav database $\kb{\D}$ of $\D$ mapped
-via $g$ computes exactly the answer to $Q$ in $\D$.
-
-
-Here we consider query plans $\xi$ with one bulk $\bget(T)$
-operation
-over $\kb{\R}$ for each relation $R$ in $\R$, \ie there
-exists only one $\bget(T)$ %operation
-in $\xi$ that fetches values
-for each $R$. This is to ensure that $\xi$ fetches values that
-are from the same tuples in an instance of $R$.
-
-\warn{Intuitively, not all \baav schemas mapped from database schema
-$\R$ can answer every query over $\R$ and the normal form
-characterizes all sensible \baav schemas for $\R$ \wrt
-parametric queries $\Q$.}
-
-\begin{example}\label{exa-norm}
-The \bds $\kb{\R}_{1}$ of Example~\ref{exa-mapping} is in the normal
-form for $Q_{1}$ over $\R_{1}$ of Example~\ref{exa-baav}. Indeed,
-the plan outlined %in
-there %Example~\ref{exa-baav}
-can always compute the answers
-to $Q$ in any database $\D$ of $\R_{1}$ by executing it over the
-sibling $\kb{\D}$ of $\D$ over \bds $\kb{\R}_{1}$.
-\end{example}
-\vspace{-0.4ex}
-
-\warn{\stitle{Scan-free queries}. Consider database schema $\R$ and
-parametric query $Q[P_{Q}]$ over $\R$. Let $\kb{\R}$ be a
-normalized \baav schema for $\R$. Then $Q[P_{Q}]$ is {\em
-  scan-free (evaluable)} if for any instantiation $Q[P_{Q} = \bar c]$ of
-$Q[P_{Q}]$, there exists a scan-free query plan $\xi$ over
-$\kb{\R}$ for $Q[P_{Q} = \bar c]$, \ie for any database $\D$ of
-$\R$, $Q[P_{Q}=\bar c](\D) = \xi(\kb{\D})$ where \baav database
-$\kb{\D}$ is the sibling of $\D$ over $\kb{\R}$.
-Intuitively, we want to design normalized \baav schemas for $\R$
-on which the queries are scan-free.}
-
-
-
-
-
-
-\stitle{A framework}. We give a framework for speeding up
-parametric queries with sibling \baav databases. Consider
-workload $\Q$ of parametric queries over database schema $\R$.
-
-\sstab (1) It computes a sibling \bds $\kb{\R}$ of $\R$ in the
-normal form for $\Q$.\looseness = -1
-
-\sstab (2) It constructs the sibling \baav database $\kb{\D}$ of
-$\kb{\R}$ for the database $\D$ of $\R$, and maintains $\kb{\D}$ in
-response to updates to $\D$.
-\looseness = -1
-
-
-\sstab (3) For any query $Q$ instantiated from parametric queries
-in $\Q$, it answers $Q$ over $\kb{\D}$, benefiting from the \baav
-model.
-
-
-
-\vspace{0.8ex}
-We will develop a solution to Step~(1)
-in Sections~\ref{sec-rank}--\ref{sec-cover}.
-For step~(3), algorithms for finding query plans
-have been developed in~\cite{VLDB19}.
-Below we outline a solution for step~(2).
-
-\eetitle{Step~(2)}.
-We show that
-the incremental maintenance of \baav instance $\kb{D}$
-of $\kb{R}$ is {\em bounded}~\cite{Reps96} when the \bs $\kb{R}\bschema{X}{Y}$
-consists of attributes from the same relation of $\R$.
-That is, the maintenance cost is determined by the
-  size of updates, not by the cost of possibly big database $\D$.
-For a set $\Delta^{+}$ of tuple insertions to $R$, updating $\kb{D}$
-with $\Delta^{+}$ %$\Delta$
-can be simply done by projecting $\Delta^{+}$ %$\Delta$
-to $XY$
-attributes and grouping them by $X$; this takes
-$O(|\Delta^{+}|\log|\Delta^{+}|)$-time, where $|\Delta^{+}|$ is
-the size of $\Delta^{+}$, independent of the size $|\kb{\D}|$ of
-$\kb{\D}$. Similarly, deletion updates $\Delta^{-}$ can be
-handled in $O(d*|\Delta^{-}|)$-time, where $d$ is the degree of
-$\kb{\D}$, independent of $|\kb{\D}|$. When $\kb{R}$ contains
-attributes from \eg two relations $R$ and $R'$ of $\R$ where $R$
-has a foreign key for $R'$, the
-%incremental
-maintenance cost is dominated by the cost of
-maintaining the key-foreign key join $R\Join R'$ for $\kb{R}$
-which is bounded by
-% \warn{$O(\cd{\Delta^{+}}|R|)$}
-$O(\cd{\Delta^{+}}\cd{R'}\log(\cd{\Delta^{+}}\cd{R'}))$ (assuming
-that $\Delta^{+}$ is update of tuple insertions
-%is tuple insertion updates
-to $R$; $\cd{R'}$ is the number of
-attributes of $R'$), 
-independent of $\cd{\D}$; similarly for other cases.
-
-%\warn{Key-foreign key join should be bounded?}
-
-Hence \baav databases can be maintained
-  in a cost determined by the size of updates, no matter how
-  big $\kb{D}$ grows.
-
-\eat{%EAT
-\eetitle{Remark}. The framework also supports generic \SQL
-queries. Indeed, step (3) already supports generic \SQL queries
-(cf.~\cite{VLDB19}). Steps (1) and (2) handle generic \SQL by
-treating each query as a collection of its \SPC sub-queries.
-}%EAT
 
 \vspace{0.8ex}
 Key notations of the paper are summarized in Table~\ref{tab-notation}.

@@ -1,6 +1,8 @@
-\vspace{2ex}
+%\vspace{2ex}
+\vspace{-0.3ex}
 \section{Experimental Study}
 \label{sec-expt}
+\vspace{-0.4ex}
 
 \warn{Using standard database benchmarks, we conducted four sets of
 experiments to evaluate
@@ -137,6 +139,16 @@ test results.
 %the average query evaluation time.
 
 
+
+
+
+
+
+
+
+
+
+
 \eetitle{Configuration}.
 The experiments were conducted on a cluster of 4 instances of
 Centos 7 virtual machines (VMs). Each VM has 2 vCPUs, 8GB of
@@ -262,7 +274,20 @@ All the tests were run 3 times. The average is reported here.
 
 \stitle{Experimental Results}. We next report our findings.
 
-\stitle{Exp-1: Quality of \bdss}.
+\warn{\stitle{Exp-1: Benchmark tests}. Using default settings, we
+first compared the benchmark query performance over \baav
+schemas computed by our algorithms and over the conventional
+tuple-as-a-value relations. The results are reported in
+Table~[\xx]}%\ref{tab-benchmark}.
+
+
+
+\warn{\stitle{Exp-2: Scan-free evaluation}.
+We then evaluated the effectiveness of scan-free evaluation and
+studied the impact of degrees on scan-free queries.}
+
+
+\stitle{Exp-3: Quality of \bdss}.
 We evaluated the quality of the \bdss found by each method in %under
 all settings. 
 
@@ -472,7 +497,7 @@ from \warn{5.97} to \warn{7.13} times when the \tpcds dataset increases from \wa
 %%%%%%%%%%%%%%%%% 
 
 %\vspace{0.36ex}
-\stitle{Exp-2: Efficiency}. 
+\stitle{Exp-4: Efficiency}.
 We also evaluated the efficiency of our method.
 We used the same setting as EXP-1(4) and tested
 %We used all queries for both benchmarks and tested

@@ -1,11 +1,17 @@
-\vspace{2ex}
+%\vspace{2ex}
+\vspace{-0.7ex}
 %%%%%%%% Section 4 %%%%%%%%
 \section{Computing Optimal \textsf{BaaV} Schemas}
 \label{sec-select}
+\vspace{-0.4ex}
 
-In light of Theorem~\ref{thm-complexity}, any efficient solution
-to \baav schema selection is necessarily approximate.
-This said, below we develop a practical algorithm 
+In light of Theorem~\ref{thm-complexity}, \revise{it is beyond reach
+in practice to find an efficient and optimal solution
+to the \baav schema selection problem}. 
+%any efficient solution
+%to \baav schema selection is necessarily approximate.
+This said, \revise{this section
+develops} a practical algorithm 
 that given any ``universe'' set $\kb{\A}$ of \bss,
 computes the optimal \bds $\kb{\R}$ for $\Q$ that is subsumed by
 $\kb{\A}$. That is, it is able to select the optimal $\kb{\R}$
@@ -14,49 +20,11 @@ including the optimal ones.
 
 
 Below we present the algorithm assuming a given universe set $\kb{\A}$.
-We will study the construction of $\kb{\A}$ in
+We will study the construction of such an $\kb{\A}$ in
 Section~\ref{sec-cover}.
 
 
 
-\begin{myfloat}[t]
-\vspace{1.2ex}
-\begin{minipage}{0.50\textwidth}
-  \removelatexerror
-%%%%%%%%%%%%%%%%%%%%% Algorithm: OPTS
-{\scriptsize
-\setlength{\floatsep}{0cm} % set blank space above the figure
-\setlength{\textfloatsep}{-2cm}% set blank space below the figure
-\IncMargin{1em}
-\vspace{-0.7ex}
-\begin{algorithm}[H]
-\setstretch{1.1}
-%\SetAlgoNoLine
-\Indentp{-2ex}
-%\DontPrintSemicolon
-%\SetAlgoLined
-\KwIn{$\Q$ over $\R$, a set
-  $\kb{\A}$ of \bss, rank aggregate function $f$.}
-\KwOut{\bds $\kb{\R}$ in the normal form for $Q$ with minimum $f(\Q,
-  \kb{\R})$ among all normalized \bdss subsumed by $\kb{\A}$.}
-\Indentp{1em}
-\BlankLine
-construct and solve ILP-(I) with
-$\kb{\A}$\label{opts-l1}\tcp*[r]{denote its answer by $\kb{\R}_{o}$}
-\lIf{$\Q$ is {\em acyclic} \wrt $\kb{\R}_{o}$}{\Return $\kb{\R}_{o}$\label{opts-l2}}
-\Else{
-  construct and solve ILP-(II) with $\kb{\A}$\label{opts-l4}
-  \tcp*[r]{let $\kb{\R}'_{o}$ be its answer}
-  \Return $\kb{\R}'_{o}$ \;\label{opts-l5}
-}
-\caption{Algorithm \opts\label{alg-opts}} 
-\end{algorithm}
-\DecMargin{1em}
-}
-%%%%%%%%%%%%%%%%%%%%%
-\end{minipage}
-\vspace{-2.4ex}
-\end{myfloat}
 
 
 \stitle{Algorithm}.
@@ -65,14 +33,16 @@ is shown as
 Algorithm~\ref{alg-opts}. It takes as input a workload $\Q$ over
 database schema $\R$, a set $\kb{\A}$ of \bss and an aggregate rank
 function $f(\Q,\ak \kb{\R})$.
-It computes the optimal \bds $\kb{\R}$ normalized for $\Q$ from $\kb{\A}$,
+It \revise{deduces} %computes
+the optimal \bds $\kb{\R}$ normalized for $\Q$ from $\kb{\A}$,
 \ie for any other \bds $\kb{\R}'\ak \subseteq \ak \kb{\A}$ in the
 normal form for $\Q$, $f(\Q,\ak \kb{\R})\ak \leq\ak f(\Q,\ak \kb{\R}')$.
 %
-Its core idea is to use integer linear programming (ILP) to
+Its \revise{main} %core
+idea is to use integer linear programming (ILP) to
 express the normal form conditions and ranking criteria of \bdss
-for $\Q$, so that computing the optimal normalized \bds in $\kb{\A}$
-reduces to solving an ILP program. This allows us to 
+for $\Q$, such that computing the optimal normalized \bds in $\kb{\A}$
+is reduced to solving an ILP program. This allows us to 
 capitalize on the latest advances of ILP, \eg algorithms
 (cf.~\cite{ILPbook}) and commercial ILP
 solvers~\cite{cplex,gurobi,XpressMP}. We use
@@ -83,9 +53,9 @@ variables and constraints than those in our setting.\looseness=-1
 
 
 
-The reduction
+This said, the reduction
 is challenging since both (a) the normal form and (b) the
-scan-free evaluability of \bdss for $\Q$ are semantically defined
+scan-free evaluability of \bdss for $\Q$ are semantically defined, 
 and are nontrivial to encode as  an ILP.
 % Indeed, (a) is already \NP-hard for generic \SPC queries and
 % cannot be exactly captured by linear functions, \eg ILP.
@@ -122,12 +92,12 @@ The {\em acyclicity} of $\Q$ concerns dependencies
 in a schema graph, which will be elaborated later on.\looseness=-1
 
 \vspace{0.6ex}
-Theorem~\ref{thm-opts} tells us that the \baav schema
+Intuitively, Theorem~\ref{thm-opts} tells us that the \baav schema
 $\kb{\R}$ computed by
 algorithm \opts is able to answer all \SQL queries posed
-on conventional database schema $\R$. Moreover, for 
+on conventional database schema $\R$. Furthermore, for 
 K-FK join \SPC queries, $\kb{\R}$ guarantees to avoid
-costly scans.
+costly scans entirely.
 
 \vspace{0.6ex}
 We give a constructive proof for Theorem~\ref{thm-opts}
@@ -135,7 +105,7 @@ by presenting algorithm \opts. \opts
 computes $\kb{\R}$ via two ILP programs,
 referred to as ILP-(I) and ILP-(II).
 It constructs and solves ILP-(I) (line~\ref{opts-l1}).
-Based on its answers \opts decides whether $\Q$ is acyclic,
+Based on its answers, \opts decides whether $\Q$ is acyclic,
 and returns the \bds encoded in the solution to ILP-(I) if so
 (line~\ref{opts-l2}); the \bds is the optimal normalized \bds from
 $\kb{\A}$ for K-FK join \SPC queries
@@ -145,21 +115,64 @@ solves ILP-(II); it returns the \bds encoded in its solution
 (lines~\ref{opts-l4}-\ref{opts-l5}), which
 is the \ssf-optimal
 normalized \bds from $\kb{\A}$ for K-FK join \SPC queries
-(Theorem~\ref{thm-opts}(b)).
-\warn{To simplify the presentation of the two ILP programs, we assume
-that $\Q$ consists of \SPC queries. For generic \RA (\SQL)
-queries, \opts represents them with their max-\SPC sub-queries
-in $\Q$ beforehand and then selects schemas in the same way.
-Here a sub-query $Q_{s}$ of \RA query $Q$ is a max-\SPC
-sub-query of $Q$ if it is an \SPC and for any other max-\SPC
-sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of $Q_{s}'$.}
+(Theorem~\ref{thm-opts}(b)).\looseness=-1
 
+\vspace{0.36ex}
+To simplify the presentation, %of the two ILP programs,
+we \revise{assume \kwlog that}
+$\Q$ consists of \SPC queries. For generic \RA (\SQL)
+queries, \revise{\opts first} represents them with their max-\SPC sub-queries
+in $\Q$, %beforehand
+and then selects schemas in the same way.
+Here a sub-query $Q_{s}$ of \RA query $Q$ is a max-\SPC
+sub-query of $Q$ if it is \revise{an \SPC query} and for any other max-\SPC
+sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of $Q_{s}'$.
+
+\warn{Justify why considering max-\SPC suffices for \SQL}
 
 \vspace{0.8ex}
 Below we present the two ILP programs and the identification
 of acyclic queries. We then give a proof
 of Theorem~\ref{thm-opts}.
 
+\begin{myfloat}[t]
+\vspace{1.2ex}
+\begin{minipage}{0.50\textwidth}
+  \removelatexerror
+%%%%%%%%%%%%%%%%%%%%% Algorithm: OPTS
+{\scriptsize
+\setlength{\floatsep}{0cm} % set blank space above the figure
+\setlength{\textfloatsep}{-2cm}% set blank space below the figure
+\IncMargin{1em}
+\vspace{-0.7ex}
+\begin{algorithm}[H]
+\setstretch{1.1}
+%\SetAlgoNoLine
+\Indentp{-2ex}
+%\DontPrintSemicolon
+%\SetAlgoLined
+\KwIn{$\Q$ over $\R$, a set
+  $\kb{\A}$ of \bss, rank aggregate function $f$.}
+\KwOut{A \bds $\kb{\R}$ in the normal form for $Q$ with minimum $f(\Q,
+  \kb{\R})$ among all normalized \bdss subsumed by $\kb{\A}$.}
+\Indentp{1em}
+\BlankLine
+construct and solve ILP-(I) with
+$\kb{\A}$\label{opts-l1}\tcp*[r]{denote its answer by $\kb{\R}_{o}$}
+\lIf{$\Q$ is {\em acyclic} \wrt $\kb{\R}_{o}$}{\Return $\kb{\R}_{o}$\label{opts-l2}}
+\Else{
+  construct and solve ILP-(II) with $\kb{\A}$\label{opts-l4}
+  \tcp*[r]{let $\kb{\R}'_{o}$ be its answer}
+  \Return $\kb{\R}'_{o}$ \;\label{opts-l5}
+}
+\caption{Algorithm \opts\label{alg-opts}} 
+\end{algorithm}
+\DecMargin{1em}
+}
+%%%%%%%%%%%%%%%%%%%%%
+\end{minipage}
+\vspace{-2.4ex}
+\end{myfloat}
 
 \stitle{(1) ILP-(I)}. 
 ILP-(I) uses the following 0/1-variables. 
