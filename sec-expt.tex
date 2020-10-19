@@ -121,14 +121,13 @@ then $f^{(b)}$ fits it the best.
 %%%%%%%%%%%%%%
 
 \eetitle{Algorithms}. We implemented algorithms \opts
-(Section~\ref{sec-select}) and \usc (Section~\ref{sec-cover}). We
-used Gurobi~\cite{gurobi} to solve ILP-(I) and ILP-(II) of \opts.
-In particular, when implementing \usc, we lifted the restriction
-on the size of $\Sigma$ for procedure \decompose (see the remark
-in Section~\ref{sec-cover}). This allows \usc to
+(Section~\ref{sec-select}) and \usc (Section~\ref{sec-cover}).
+We used Gurobi~\cite{gurobi} to solve ILP-(I) and ILP-(II) of
+\opts.  In particular, when implementing \usc, we lifted the
+restriction on the size of $\Sigma$ for procedure \decompose
+(see the remark in Section~\ref{sec-cover}). This allows \usc to
 generate a larger universe set for \opts; as will be shown
 shortly, our approach is still efficient in this case.
-
 
 
 \etitle{Baselines}. We also designed two baselines to compare with.
@@ -167,20 +166,34 @@ test results.
 
 
 
-\eetitle{Configuration}.
-The experiments were conducted on a cluster of 4 instances of
-Centos 7 virtual machines (VMs). Each VM has 2 vCPUs, 8GB of
-memory and 150GB of HDD disk. 
+\warn{\eetitle{Implementation}.
 We used SparkSQL v2.4.0 over Cassandra v3.11.6 as the \kv
-system with \SQL evaluation support. %.%.%.%.%.%.%.%.%h 4GB of memory.
+system with \SQL evaluation support.
 We built the sibling databases according to the computed \bdss by
 all the methods, and carried out query evaluation over the
 sibling \baav databases using the algorithms of \cite{VLDB19}.
-Each VM works as both a computing node and a storage node, \ie it works
-as a Spark master/slave for the SQL layer (with 4GB of memory) and also holds a
-Cassandra partition for the storage (also with 4GB of memory).
+In particular, each \bs $\kb{R}\bschema{X}{Y}$ is
+implemented in Cassandra as a table with both $XY$ as the key
+such that (a) attributes $X$ must precede $Y$ in the keys and
+(b) keys are sorted by $X$. This is a lightweight implementation
+of the \baav schemas with Cassandra since it does not require
+any modifications to Cassandra.
+However, its performance is actually slower than a hack-in
+implementation of the \baav model inside Cassandra since
+locating the keys for a given $X$-value would incur $O(\log n)$
+complexity instead of $O(1)$ asymptotically, assuming there are
+$n$ $XY$-values in the relation. This will favor the competitors
+when compared to the default SparkSQL-over-Cassandra (tuple-as-a-value model).}
+
+
+\eetitle{Configuration}.
+The experiments were conducted on \warn{a Linux server with \xx CPU,
+  \xx GB of memory and \xx GB of HDD disk}.
+The server works as both a computing node and a storage node, \ie it works
+as a Spark master/slave for the SQL layer (with \xx GB of memory) and also holds a
+Cassandra partition for the storage (also with \xx GB of memory).
 By default, we set the storage budget $B_{\at{max}}$ of the
-\bdss to be 0.7 times of the size of the \tpcds database schema,
+\bdss to be 0.7 times of the size of the \imdb database
 and 2.5 times for \tpch.
 %where size is measured by the number of attributes in our case (other
 %more sophisticated size measures can be adopted similarly).

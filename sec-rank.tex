@@ -208,9 +208,11 @@ Following traditional database design approaches which treat
 $\size()$ as a given oracle (\eg~\cite{PapadomanolakisA07}), we
 also support existing size estimations provided by the
 database systems~\cite{BrunoCKNRS11}.  Our methods and
-performance guarantees works with any estimators as long as they
-are linear in the attributes of the schemas, as is the case in
-\eg~\cite{PapadomanolakisA07}.
+performance guarantees works with any size estimators as long as
+they are monotonic: for any $\kb{R}$ and $\kb{R}'$, if all
+attributes of $\kb{\R}'$ are also attributes of $\kb{R}$, then
+$\size(\kb{R})\geq \size(\kb{R}')$; such condition holds for all
+the sensible database size estimations, \eg~\cite{PapadomanolakisA07,BrunoCKNRS11}.
 
 
 \eat{\stitle{Ranking \bds}. Having presented two unique ranking
