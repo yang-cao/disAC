@@ -126,9 +126,15 @@ in $\Q$, %beforehand
 and then selects schemas in the same way.
 Here a sub-query $Q_{s}$ of \RA query $Q$ is a max-\SPC
 sub-query of $Q$ if it is \revise{an \SPC query} and for any other max-\SPC
-sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of $Q_{s}'$.
+sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of
+$Q_{s}'$.
+\warn{By treating \SQL with unions/negations as a set of max-\SPC
+sub-queries, we ensure the ILP programs correctly characterize
+value propagation across the attributes for them; this is
+similar to how DBMS evaluates complex \SQL queries via \SQL
+blocks (\SPC sub-queries).}
 
-\warn{Justify why considering max-\SPC suffices for \SQL}
+%\warn{Justify why considering max-\SPC suffices for \SQL}
 
 \vspace{0.8ex}
 Below we first present the two ILP programs and the identification
@@ -590,13 +596,13 @@ we have the following.
   For any K-FK join \SPC query $Q$ in $\Q$, 
 \mbi
 \item[(1)] $Q$ is scan-free over some \bds $\kb{\R}$
-only if there exists a feasible
+{\em only if} there exists a feasible
   solution to ILP-(I) with $z_{Q} = 1$;
-\item[(2)] $Q$ is scan-free evaluable over $\kb{\R}$
-  if there is a \bds $\kb{\R}$ encoded by a feasible
+\item[(2)] $Q$ is scan-free over $\kb{\R}$
+  {\em if} there is a \bds $\kb{\R}$ encoded by a feasible
   solution to ILP-(I) with $z_{Q} = 1$ and $Q$ is acyclic \wrt
   $\kb{\R}$; %and
-\item[(3)] $Q$ is strongly scan-free evaluable iff there exist a
+\item[(3)] $Q$ is strongly scan-free {\em if and only if} (iff) there exist a
   feasible solution to ILP-(II) with $z_{Q} = 1$.
 \mei
 \vspace{-3ex}
@@ -616,10 +622,16 @@ only if there exists a feasible
 
 \vspace{-0.7ex}
 
-\warn{Clarify the difference between (1) and (2). 
-Isn't scan-free and scan-free evaluable the same (Section~2)?
-Don't expect the reader to remember the subtle notions
-at this point}
+
+\warn{Note that (1) and (2) of Lemma~\ref{lem-ILP} give a
+necessary condition and sufficient condition, respectively, for
+$Q$ being scan-free over $\kb{\R}$. Lemma~\ref{lem-ILP}(3) is a
+sufficient and necessary characterization for $Q$ being strongly
+scan-free over the selected $\kb{\R}$.}
+% \warn{Clarify the difference between (1) and (2).
+% Isn't scan-free and scan-free evaluable the same (Section~2)?
+% Don't expect the reader to remember the subtle notions
+% at this point}
 
 \begin{proofS}
 % All three results can be proved by induction on $(m, n, p)$,
