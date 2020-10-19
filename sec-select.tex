@@ -130,9 +130,11 @@ sub-query $Q_{s}'$ of $Q$, $Q_{s}$ is not a sub-query of
 $Q_{s}'$.
 \warn{By treating \SQL with unions/negations as a set of max-\SPC
 sub-queries, we ensure the ILP programs correctly characterize
-value propagation across the attributes for them; this is
-similar to how DBMS evaluates complex \SQL queries via \SQL
-blocks (\SPC sub-queries).}
+value propagation across the attributes for them. Note that this
+is not a restriction since values only propagate within \SPC
+sub-queries of \SQL; hence the ILP programs need only to capture
+all such propagation with \bss encoded by their feasible
+answers to cover the optimal \bdss.}
 
 %\warn{Justify why considering max-\SPC suffices for \SQL}
 
