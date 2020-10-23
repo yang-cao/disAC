@@ -41,12 +41,21 @@ the universe set $\kb{\A}$ of \bss for $Q$.
 %
 When $Q$ is \revise{in \SQL}, we decompose it into its max-\SPC
 sub-queries, and $\kw{\A}$ is the union of the universe sets of
-  all the sub-queries. \warn{This does not miss any \bss useful for
+  all the sub-queries. \revise{As remarked earlier},
+  this does not miss any \revise{useful \bss} since values only propagate
+  within \SPC queries; hence we
+  only need to capture attribute correlations within
+  max-\SPC sub-queries of \SQL.
+%  \warn{This does not miss any \bss useful for
+%$\Q$ since values only propagate within \SPC queries, which
+%means we only need to capture attribute correlations within
+% max-\SPC sub-queries of \SQL.}
+Hence, below we assume that $\Q$ consists of \SPC queries.
+
+\eat{This does not miss any \bss useful for
 $\Q$ since values only propagate within \SPC queries, which
 means we only need to capture attribute correlations within
 max-\SPC sub-queries of \SQL.}
-Hence, below we assume that $\Q$ consists of \SPC queries.
-
 
 %\warn{Justify the consideration of \SPC queries only}
 

@@ -178,11 +178,13 @@ such that (a) attributes $X$ must precede $Y$ in the keys and
 (b) keys are sorted by $X$. This is a lightweight implementation
 of the \baav schemas with Cassandra and does not require
 any modification to Cassandra.
-However, its performance is actually slower than a hack-in
+However, its performance is %actually
+slower than a hack-in
 implementation of the \baav model inside Cassandra since
 locating the keys for a given $X$-value would incur $O(\log n)$
 complexity instead of $O(1)$ asymptotically, assuming there are
-$n$ $XY$-values in the relation. This will favor the competitors
+$n$ $XY$-values in the relation. This actually %will
+favors the competitors
 when compared to the default SparkSQL-over-Cassandra (tuple-as-a-value model).}
 
 
@@ -198,10 +200,11 @@ and 2.5 times for \tpch.
 %where size is measured by the number of attributes in our case (other
 %more sophisticated size measures can be adopted similarly).
 All the tests were run 3 times. The average is reported here.
-\looseness = -1
+%\looseness = -1
 
 
-
+\warn{Clarify why not using multiple machines. Do you still
+need master/slave with a single machine?}
 
 
 
@@ -216,8 +219,10 @@ Table~[\xx]}%\ref{tab-benchmark}.
 
 
 \warn{\stitle{Exp-2: Scan-free evaluation}.
-We then evaluated the effectiveness of scan-free evaluation and
-studied the impact of degrees on scan-free queries.}
+We then tested %evaluated
+the effectiveness of scan-free evaluation and
+%studied
+the impact of degrees on scan-free queries.}
 
 
 
