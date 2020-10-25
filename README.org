@@ -1,0 +1,37 @@
+#+TITLE: Scan-free Schema Selection with Block as a Value
+# -*- org -*-
+#+STARTUP: folded inlineimages nolatexpreview
+#+OPTIONS: toc:t num:3 H:3 pri:t p:t *:t ':t <:t ^:t broken-links:mark creator:comment d:t date:t e:t email:t f:t inline:t tex:t
+
+#+BEGIN_abstract
+This project studies the problem of schema design for
+SQL-over-NoSQL architecture with the block-as-a-value (BaaV)
+model. The main objective is to minimize the memory footprint of
+SQL layers as they typical consume large memories even over a
+rather moderate size database. The main pillar of our approach
+is the BaaV model for relations in NoSQL (key-value) stores,
+which enables the SQL layers to retrieve values instead of
+tuples (column families). We propose two types of BaaV
+implementation and study the schema design of BaaV stores to
+optimize memory footprint of SQL evaluation with the
+SQL-over-NoSQL architecture.
+#+END_abstract
+
+# now prints out the previously disabled (toc:nil) table of contents.
+#+TOC: headlines 2
+
+* Questions to ask & answer
+1. minimizing *memory footprint* of SQL layers \neq minimizing *evaluation time*
+2. Does BaaV help with minimizing _memory footprint_ of SQL layers? Can this be done via _secondary index_ on NoSQL (wide-column-family stores)?
+3. How to design BaaV schema to maximize its benefits? /Modeling/ design space? /Optimal/ trade-off?
+
+* ToDos [0/3]
+- [ ] Test the memory footprint of common SQL layers (/e.g./, Spark) for answering SQL queries over relations in NoSQL (wide-column-family stores). This is to justify and motivate the study of minimizing memory footprint of SQL evaluation.
+- [ ] BaaV schema (AC) implementation:
+  + [ ] using compound values, with extra overhead of (un)marshalling
+    - how much? is it worth?
+  + [ ] using wide-column-family with sorted (multi-fragmented) keys
+    - sorted keys to represent entire BaaV schema (XY) or just encode X?
+- [ ] BaaV schema design for given workloads to minimize total memory footprint
+  - what criteria to consider?
+  - what's the relationship between memory footprint and evaluation time for SQL-over-NoSQL?
